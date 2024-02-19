@@ -1,7 +1,7 @@
 ---
 title: "Econometrics: Multiple Regression and Applications"
 author: "Duong Trinh"
-date: "Spring 2024"
+date: "February 7, 2024"
 institute: University of Glasgow
 output:
   beamer_presentation:
@@ -25,7 +25,9 @@ header-includes:
 - \setbeamertemplate{itemize item}{$\diamond$}
 - \setbeamertemplate{itemize subitem}{\scriptsize$\diamond$}
 # - \setbeamertemplate{itemize subsubitem}{\scriptsize$\gg$}
-- \setbeamertemplate{page number in head/foot}[totalframenumber]
+# - \setbeamertemplate{page number in head/foot}[totalframenumber]
+- \setbeamertemplate{navigation symbols}{}
+- \setbeamertemplate{footline}[page number]
 - \definecolor{blue}{RGB}{0,114,178}
 - \definecolor{red}{RGB}{213,94,0}
 - \definecolor{yellow}{RGB}{240,228,66}
@@ -65,15 +67,15 @@ library(Statamarkdown)
   
 ## Record Attendance
 
-```{r, echo=FALSE, eval=FALSE, out.width='80%', fig.show='hold', fig.align='center', fig.pos = 'H'}
-library(knitr)
-knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON1013/GTA-ECON1013-IntroStats/TU2-2324/pictures/QRcodeAtd_TU04.png")
-```
+<!-- ```{r, echo=FALSE, eval=FALSE, out.width='80%', fig.show='hold', fig.align='center', fig.pos = 'H'} -->
+<!-- library(knitr) -->
+<!-- knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 1/pictures/QRcodeAtd_LB01.png") -->
+<!-- ``` -->
 
-```{r, echo=FALSE, eval=FALSE, out.width='80%', fig.show='hold', fig.align='center', fig.pos = 'H'}
-library(knitr)
-knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON1013/GTA-ECON1013-IntroStats/TU2-2324/pictures/QRcodeAtd_TU04.png")
-```
+<!-- ```{r, echo=FALSE, eval=TRUE, out.width='80%', fig.show='hold', fig.align='center', fig.pos = 'H'} -->
+<!-- library(knitr) -->
+<!-- knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 1/pictures/QRcodeAtd_LB02.png") -->
+<!-- ``` -->
 
 ## Picture the Scenario
 
@@ -117,7 +119,7 @@ knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON1013/GTA-ECON1013-Int
 
 ## Questions (S\&W Exercise E12.1) {#IVCQ}
 
-### IV regression with additional exogenous variables  
+### IV regression with additional control variables  
 \footnotesize[(>>review)](#IVCCG) \normalsize
 
 (g) Include the variables `agem1`, `black`, `hispan`, and `othrace` in the labor supply regression (treating these variables as exogenous). 
@@ -149,7 +151,7 @@ $$
 
 \vspace{3mm}
 
-+ Ignoring these factors and using the simple linear regression only may distort (overestimate or underestimate the true causal effect). \footnotesize [(>>review)](#OVB) \normalsize
++ Ignoring these factors and using the simple linear regression only may distort (overestimate or underestimate) the true causal effect. \footnotesize [(>>review)](#OVB) \normalsize
 
 
 ## (c) Are couples whose first two children are of the same sex more likely to have a third child? {#q2-regFirstStage}
@@ -158,16 +160,14 @@ $$
 $$
 \color{green}{morekids_i = \delta_0 + \delta_1 \cdot samesex_i + v_i}
 $$
-
 + Estimation results \footnotesize [(>>stata)](#res2-regFirstStage) \normalsize
 $$
 \underset{(se)}{\widehat{morekids}} = \underset{(0.0013)}{0.3464} + \underset{(0.0019)}{0.0675} \cdot samesex \qquad R^2=0.0048
 $$
 
-+ $\hat{\delta}_1 \approx 0.0675$ suggests that couples with `samesex` = 1 are $6.75\%$ more likely to have an additional child than
-couples with `samesex` = 0 *on average*.
++ $\hat{\delta}_1 \approx 0.0675$ suggests that couples with `samesex` = 1 are $6.75\%$ more likely to have an additional child than couples with `samesex` = 0 *on average*.
 
-+ The effect is highly significant ($t-statistic = 35.2$).
++ The effect is highly significant ($\text{t-statistic} = 35.2$).
 
 ## (d) Explain why `samesex` is a valid instrument for the IV regression of `weeksm1` on `morekids`.
 
@@ -177,7 +177,7 @@ $$
 
 + Two conditions for a valid instrument:
   1. *Relevant*? $\text{corr}(samesex_i,morekids_i) \neq 0$?  
-  Plausibly: The effect of `samesex` on `morekids` is statistically significant, as discussed in (c). The first stage $F-statistic = 1238.17$ is large 
+  Plausibly: The effect of `samesex` on `morekids` is statistically significant, as discussed in (c). The first stage $F-statistic = 1238.17$ is large.
   \vspace{2mm}
   2. *Exogenous*? $\text{corr}(samesex_i,u_i) = 0$?  
   Plausibly: `samesex` is random and is unrelated to any of the other variables in the model including the error term in the labor supply equation.
@@ -229,14 +229,14 @@ OLS standard errors from the second stage regression are not correct as they do 
 
 ```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
 * ivregress 2sls yvar (xvar = IV), r
-* estat estat firststage
+* estat firststage
 // report first-stage regression statistics
 ```
 
 ```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
 * ivregress 2sls yvar (xvar = IV), r
-* estat estat endog
-// perform tests of endogeneity
+* estat endog
+// perform tests of the endogeneity of xvar
 ```
 
 
@@ -258,7 +258,7 @@ knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Eco
 \small
 ```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
 * ivregress 2sls yvar (xvar = IV), r
-* estat estat firststage
+* estat firststage
 ```
 
 ```{r, echo=FALSE, out.width='100%', fig.show='hold', fig.align='center', fig.pos = 'H'}
@@ -277,15 +277,17 @@ $$
 \hat{\beta}_1^{TSLS} \approx -6.31, \quad \text{robust s.e} \approx 1.27 
 $$
 suggests that that women with more than two children work $6.31$ fewer weeks per year than women with two or fewer children *on average*.
+\vspace{1mm}
 
-+ Homogeneous effects: If the causal effect is the same for every individual, the availability of an IV allows us to identify the causal effect.
-  + Get the effect of X on Y through the effect of Z because Z only effects Y through X.
++ Homogeneous effects: If the causal effect is the same for every individual, the result above has *causal interpretation*.
+  <!-- + Get the effect of X on Y through the effect of Z because Z only effects Y through X. -->
+\vspace{1mm}
 
-+ Heterogeneous effects:
-  + In the heterogeneous case the availability of IVs is not sufficient to identify a causal effect.
-<!--   + An additional assumption that helps identification of causal effects is the following "monotonicity" condition: Any person that was willing to treat if assigned to the control group, would also be prepared to treat if assigned to the treatment group. -->
-<!--   + The plausibility of this assumption depends on the context of application. -->
-<!--   + Under monotonicity, the IV coefficient coincides with the average treatment effect for those whose value of X would change when changing the value of Z (local average treatment effect or LATE). -->
++ Heterogeneous effects: *we will discuss later*.
+  <!-- + In the heterogeneous case the availability of IVs is not sufficient to identify a causal effect. -->
+  <!-- + An additional assumption that helps identification of causal effects is the following "monotonicity" condition: Any person that was willing to treat if assigned to the control group, would also be prepared to treat if assigned to the treatment group. -->
+  <!-- + The plausibility of this assumption depends on the context of application. -->
+  <!-- + Under monotonicity, the IV coefficient coincides with the average treatment effect for those whose value of X would change when changing the value of Z (local average treatment effect or LATE). -->
 
 
 ## (f) Test endogeneity of regressor $X:morekids$
@@ -307,8 +309,8 @@ $\Rightarrow$ Result of robustified DWH test suggests variable `morekids` is unl
 1.  Regress $morekids_i$ on $samesex_i$ and all exogenous variables
 \begin{equation*}
 \begin{split}
-\color{green}{morekids_i} &\color{green}{= \delta_0 + \delta_1 \cdot samesex_i + \delta_2 \cdot agem1 + \delta_3 \cdot black + }\\
-&\hspace{24pt} \color{green}{+ \delta_4 \cdot hispan + \delta_5 \cdot othrace + v_i}
+\color{green}{morekids_i} &\color{green}{= \delta_0 + \delta_1 \cdot samesex_i + \delta_2 \cdot agem1_i + \delta_3 \cdot black_i + }\\
+&\hspace{24pt} \color{green}{+ \delta_4 \cdot hispan_i + \delta_5 \cdot othrace_i + v_i}
 \end{split}
 \end{equation*}
 Then, compute the predicted values $\widehat{morekids}_i$ for $i = 1,\ldots,n.$
@@ -316,8 +318,8 @@ Then, compute the predicted values $\widehat{morekids}_i$ for $i = 1,\ldots,n.$
 2. Regress $weeksm1_i$ on $\widehat{morekids}_i$ 
 \begin{equation*}
 \begin{split}
-\color{red}{weeksm1_i} &\color{red}{= \beta_0 + \beta_1 \cdot \widehat{morekids}_i + \beta_2 \cdot agem1 + \beta_3 \cdot black + } \\ 
-&\hspace{24pt} \color{red}{+\beta_4 \cdot hispan + \beta_5 \cdot othrace + u_i}
+\color{red}{weeksm1_i} &\color{red}{= \beta_0 + \beta_1 \cdot \widehat{morekids}_i + \beta_2 \cdot agem1_i + \beta_3 \cdot black_i + } \\ 
+&\hspace{24pt} \color{red}{+\beta_4 \cdot hispan_i + \beta_5 \cdot othrace_i + u_i}
 \end{split}
 \end{equation*}
 We eventually obtain $\hat{\beta}_1^{TSLS}$, which is the TSLS estimator.
@@ -340,14 +342,14 @@ Implement \textcolor{blue}{\texttt{ivregress}} command with additional exogenous
 
 ```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
 * ivregress 2sls yvar wvar1 wvar2 wvark (xvar = IV), r
-* estat estat firststage
+* estat firststage
 // report first-stage regression statistics
 ```
 
 ```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
 * ivregress 2sls yvar wvar1 wvar2 wvark (xvar = IV), r
-* estat estat endog
-// perform tests of endogeneity
+* estat endog
+// perform tests of the endogeneity of xvar
 ```
 
 ## (g) IV regression with $Y:weeksm1$, $X:morekids$, $Z:samesex$, and additional exogenous regressors
@@ -374,7 +376,7 @@ $$
 \small
 ```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
 * ivregress 2sls yvar wvar1 wvar2 wvark (xvar = IV), r
-* estat estat firststage
+* estat firststage
 ```
 
 ```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='center', fig.pos = 'H'}
@@ -385,11 +387,11 @@ knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Eco
 $\Rightarrow$ The instrument `samesex` remains relevant. The reason is that the addition of the new variables does not affect the strength of the
 relationship between `morekids` and `samesex`.
 
-## (g) Test endogeneity of regressor $X:morekids$
+## (g) Test endogeneity of regressor $X:morekids$ {#qa-endog}
 \small
 ```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
 * ivregress 2sls yvar wvar1 wvar2 wvark (xvar = IV), r
-* estat estat endog
+* estat endog
 ```
 
 ```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='center', fig.pos = 'H'}
@@ -397,7 +399,7 @@ library(knitr)
 knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 1/pictures/res8-estatEndog2SLS.png")
 ```
 
-$\Rightarrow$ The endogeneity test gives the same result as without the additional regressors. However, we should still be very skeptical about the possibility of `morekids` being exogenous. 
+$\Rightarrow$ The endogeneity test gives the same result as without the additional regressors. However, we should still be very skeptical about the possibility of `morekids` being exogenous. \footnotesize[(>>review)](#review-endog) \normalsize
 
 ## Table of Results
 
@@ -434,7 +436,7 @@ knitr::include_graphics(c("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-E
 ```
 
 $$
-\text{corr}(X_i,u_i)  = 0
+E(u_i \mid X_i) = 0
 $$
 \footnotesize[(>>back)](#LGQ) \normalsize
 
@@ -448,13 +450,13 @@ knitr::include_graphics(c("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-E
 ```
 
 $$
-\text{corr}(Z_i, X_i) \neq 0 \text{ and } \text{corr}(Z_i, u_i)  = 0
+\underset{\color{gray}{relevance}}{\text{corr}(Z_i, X_i)} \neq 0 \text{ and } \underset{\color{gray}{exogeneity}}{\text{corr}(Z_i, u_i)}  = 0
 $$
 \footnotesize[(>>back)](#IVQ) \normalsize
 
 ## Causal Graph (III) {#IVCCG}
 
-### IV regression with additional exogenous variables 
+### IV regression with additional control variables 
 ```{r fig-IVC, echo=FALSE, out.width='48%', out.height="58%", fig.show='hold', fig.align='center', fig.pos = 'H'}
 library(knitr)
 knitr::include_graphics(c("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 1/pictures/IVCsetting1.png",
@@ -497,7 +499,7 @@ $\beta_2 < 0$ & \textcolor{green}{$plim\hat{\beta_1} < \beta_1$} & \textcolor{re
 
 \footnotesize [(>>backB)](#LRissue) \normalsize
 
-## Testing for regressor endogeneity (I)
+## Testing for regressor endogeneity (I) {#review-endog}
 
 1. Hausman test
 
@@ -529,12 +531,15 @@ $$
 
 + Valid even in the case of heteroskedastic errors provided that we use robust variance estimates. 
 
+\footnotesize[(>>backG)](#qa-endog) \normalsize
+
 # STATA CODES \& RESULTS
 
 ## {#res1-regOLS}
 \small
 ```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
 * regress yvar xvar, r
+// add option r to report Hetroskedasticity-robust standard errors
 ```
 
 ```{r, echo=FALSE, out.width='100%', fig.show='hold', fig.align='center', fig.pos = 'H'}
@@ -547,7 +552,8 @@ knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Eco
 ## {#res2-regFirstStage}
 \small
 ```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
-* regress xvar IVvar, r
+* regress xvar IV, r
+// add option r to report Hetroskedasticity-robust standard errors
 ```
 
 ```{r, echo=FALSE, out.width='100%', fig.show='hold', fig.align='center', fig.pos = 'H'}
@@ -574,7 +580,7 @@ knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Eco
 \small
 ```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
 * ivregress 2sls yvar (xvar = IV), r
-* estat estat firststage
+* estat firststage
 // report first-stage regression statistics
 ```
 
@@ -587,8 +593,8 @@ knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Eco
 \small
 ```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
 * ivregress 2sls yvar (xvar = IV), r
-* estat estat endog
-// perform tests of endogeneity
+* estat endog
+// perform tests of the endogeneity of xvar
 ```
 
 ```{r, echo=FALSE, out.width='100%', fig.show='hold', fig.align='center', fig.pos = 'H'}
@@ -612,7 +618,7 @@ knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Eco
 \small
 ```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
 * ivregress 2sls yvar wvar1 wvar2 wvark (xvar = IV), r
-* estat estat firststage
+* estat firststage
 // report first-stage regression statistics
 ```
 
@@ -625,8 +631,8 @@ knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Eco
 \small
 ```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
 * ivregress 2sls yvar wvar1 wvar2 wvark (xvar = IV), r
-* estat estat endog
-// perform tests of endogeneity
+* estat endog
+// perform tests of the endogeneity of xvar
 ```
 
 ```{r, echo=FALSE, out.width='100%', fig.show='hold', fig.align='center', fig.pos = 'H'}

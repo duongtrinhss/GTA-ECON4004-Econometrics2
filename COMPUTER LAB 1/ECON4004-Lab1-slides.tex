@@ -127,7 +127,8 @@
 \usepackage{multirow}
 \setbeamertemplate{itemize item}{$\diamond$}
 \setbeamertemplate{itemize subitem}{\scriptsize$\diamond$}
-\setbeamertemplate{page number in head/foot}[totalframenumber]
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}[page number]
 \definecolor{blue}{RGB}{0,114,178}
 \definecolor{red}{RGB}{213,94,0}
 \definecolor{yellow}{RGB}{240,228,66}
@@ -151,7 +152,7 @@
 \title{Econometrics: Multiple Regression and Applications}
 \subtitle{ECON4004: LAB 1}
 \author{Duong Trinh}
-\date{Spring 2024}
+\date{February 7, 2024}
 \institute{University of Glasgow}
 
 \begin{document}
@@ -309,8 +310,8 @@ instrument}
 
 \begin{frame}[fragile]{Questions (S\&W Exercise E12.1)}
 \protect\hypertarget{IVCQ}{}
-\begin{block}{IV regression with additional exogenous variables}
-\protect\hypertarget{iv-regression-with-additional-exogenous-variables}{}
+\begin{block}{IV regression with additional control variables}
+\protect\hypertarget{iv-regression-with-additional-control-variables}{}
 \footnotesize\protect\hyperlink{IVCCG}{(\textgreater\textgreater review)}
 \normalsize
 
@@ -376,7 +377,7 @@ estimating ~the causal effect of fertility on labor supply.}
 \tightlist
 \item
   Ignoring these factors and using the simple linear regression only may
-  distort (overestimate or underestimate the true causal effect).
+  distort (overestimate or underestimate) the true causal effect.
   \footnotesize \protect\hyperlink{OVB}{(\textgreater\textgreater review)}
   \normalsize
 \end{itemize}
@@ -401,7 +402,7 @@ the same sex more likely to have a third child?}
   \texttt{samesex} = 1 are \(6.75\%\) more likely to have an additional
   child than couples with \texttt{samesex} = 0 \emph{on average}.
 \item
-  The effect is highly significant (\(t-statistic = 35.2\)).
+  The effect is highly significant (\(\text{t-statistic} = 35.2\)).
 \end{itemize}
 \end{frame}
 
@@ -424,7 +425,7 @@ instrument for the IV regression of \texttt{weeksm1} on
     \emph{Relevant}? \(\text{corr}(samesex_i,morekids_i) \neq 0\)?\\
     Plausibly: The effect of \texttt{samesex} on \texttt{morekids} is
     statistically significant, as discussed in (c). The first stage
-    \(F-statistic = 1238.17\) is large \vspace{2mm}
+    \(F-statistic = 1238.17\) is large. \vspace{2mm}
   \item
     \emph{Exogenous}? \(\text{corr}(samesex_i,u_i) = 0\)?\\
     Plausibly: \texttt{samesex} is random and is unrelated to any of the
@@ -507,7 +508,7 @@ in Stata adjusts for this 2 stage process.
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{* ivregress 2sls yvar (xvar = IV), }\FunctionTok{r}
-\NormalTok{* }\KeywordTok{estat} \KeywordTok{estat}\NormalTok{ firststage}
+\NormalTok{* }\KeywordTok{estat}\NormalTok{ firststage}
 \CommentTok{// report first{-}stage regression statistics}
 \end{Highlighting}
 \end{Shaded}
@@ -515,8 +516,8 @@ in Stata adjusts for this 2 stage process.
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{* ivregress 2sls yvar (xvar = IV), }\FunctionTok{r}
-\NormalTok{* }\KeywordTok{estat} \KeywordTok{estat}\NormalTok{ endog}
-\CommentTok{// perform tests of endogeneity}
+\NormalTok{* }\KeywordTok{estat}\NormalTok{ endog}
+\CommentTok{// perform tests of the endogeneity of xvar}
 \end{Highlighting}
 \end{Shaded}
 \end{frame}
@@ -543,7 +544,7 @@ Relevance}
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{* ivregress 2sls yvar (xvar = IV), }\FunctionTok{r}
-\NormalTok{* }\KeywordTok{estat} \KeywordTok{estat}\NormalTok{ firststage}
+\NormalTok{* }\KeywordTok{estat}\NormalTok{ firststage}
 \end{Highlighting}
 \end{Shaded}
 
@@ -563,27 +564,13 @@ Relevance}
   \hat{\beta}_1^{TSLS} \approx -6.31, \quad \text{robust s.e} \approx 1.27 
   \] suggests that that women with more than two children work \(6.31\)
   fewer weeks per year than women with two or fewer children \emph{on
-  average}.
+  average}. \vspace{1mm}
 \item
   Homogeneous effects: If the causal effect is the same for every
-  individual, the availability of an IV allows us to identify the causal
-  effect.
-
-  \begin{itemize}
-  \tightlist
-  \item
-    Get the effect of X on Y through the effect of Z because Z only
-    effects Y through X.
-  \end{itemize}
+  individual, the result above has \emph{causal interpretation}.
+  \vspace{1mm}
 \item
-  Heterogeneous effects:
-
-  \begin{itemize}
-  \tightlist
-  \item
-    In the heterogeneous case the availability of IVs is not sufficient
-    to identify a causal effect.
-  \end{itemize}
+  Heterogeneous effects: \emph{we will discuss later}.
 \end{itemize}
 \end{frame}
 
@@ -612,16 +599,16 @@ supply regression.}
   Regress \(morekids_i\) on \(samesex_i\) and all exogenous variables
   \begin{equation*}
   \begin{split}
-  \color{green}{morekids_i} &\color{green}{= \delta_0 + \delta_1 \cdot samesex_i + \delta_2 \cdot agem1 + \delta_3 \cdot black + }\\
-  &\hspace{24pt} \color{green}{+ \delta_4 \cdot hispan + \delta_5 \cdot othrace + v_i}
+  \color{green}{morekids_i} &\color{green}{= \delta_0 + \delta_1 \cdot samesex_i + \delta_2 \cdot agem1_i + \delta_3 \cdot black_i + }\\
+  &\hspace{24pt} \color{green}{+ \delta_4 \cdot hispan_i + \delta_5 \cdot othrace_i + v_i}
   \end{split}
   \end{equation*} Then, compute the predicted values
   \(\widehat{morekids}_i\) for \(i = 1,\ldots,n.\)
 \item
   Regress \(weeksm1_i\) on \(\widehat{morekids}_i\) \begin{equation*}
   \begin{split}
-  \color{red}{weeksm1_i} &\color{red}{= \beta_0 + \beta_1 \cdot \widehat{morekids}_i + \beta_2 \cdot agem1 + \beta_3 \cdot black + } \\ 
-  &\hspace{24pt} \color{red}{+\beta_4 \cdot hispan + \beta_5 \cdot othrace + u_i}
+  \color{red}{weeksm1_i} &\color{red}{= \beta_0 + \beta_1 \cdot \widehat{morekids}_i + \beta_2 \cdot agem1_i + \beta_3 \cdot black_i + } \\ 
+  &\hspace{24pt} \color{red}{+\beta_4 \cdot hispan_i + \beta_5 \cdot othrace_i + u_i}
   \end{split}
   \end{equation*} We eventually obtain \(\hat{\beta}_1^{TSLS}\), which
   is the TSLS estimator.
@@ -654,7 +641,7 @@ exogenous variables
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{* ivregress 2sls yvar wvar1 wvar2 wvark (xvar = IV), }\FunctionTok{r}
-\NormalTok{* }\KeywordTok{estat} \KeywordTok{estat}\NormalTok{ firststage}
+\NormalTok{* }\KeywordTok{estat}\NormalTok{ firststage}
 \CommentTok{// report first{-}stage regression statistics}
 \end{Highlighting}
 \end{Shaded}
@@ -662,8 +649,8 @@ exogenous variables
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{* ivregress 2sls yvar wvar1 wvar2 wvark (xvar = IV), }\FunctionTok{r}
-\NormalTok{* }\KeywordTok{estat} \KeywordTok{estat}\NormalTok{ endog}
-\CommentTok{// perform tests of endogeneity}
+\NormalTok{* }\KeywordTok{estat}\NormalTok{ endog}
+\CommentTok{// perform tests of the endogeneity of xvar}
 \end{Highlighting}
 \end{Shaded}
 \end{frame}
@@ -707,7 +694,7 @@ supply?}
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{* ivregress 2sls yvar wvar1 wvar2 wvark (xvar = IV), }\FunctionTok{r}
-\NormalTok{* }\KeywordTok{estat} \KeywordTok{estat}\NormalTok{ firststage}
+\NormalTok{* }\KeywordTok{estat}\NormalTok{ firststage}
 \end{Highlighting}
 \end{Shaded}
 
@@ -720,13 +707,13 @@ strength of the relationship between \texttt{morekids} and
 \end{frame}
 
 \begin{frame}[fragile]{(g) Test endogeneity of regressor \(X:morekids\)}
-\protect\hypertarget{g-test-endogeneity-of-regressor-xmorekids}{}
+\protect\hypertarget{qa-endog}{}
 \small
 
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{* ivregress 2sls yvar wvar1 wvar2 wvark (xvar = IV), }\FunctionTok{r}
-\NormalTok{* }\KeywordTok{estat} \KeywordTok{estat}\NormalTok{ endog}
+\NormalTok{* }\KeywordTok{estat}\NormalTok{ endog}
 \end{Highlighting}
 \end{Shaded}
 
@@ -735,6 +722,8 @@ strength of the relationship between \texttt{morekids} and
 \(\Rightarrow\) The endogeneity test gives the same result as without
 the additional regressors. However, we should still be very skeptical
 about the possibility of \texttt{morekids} being exogenous.
+\footnotesize\protect\hyperlink{review-endog}{(\textgreater\textgreater review)}
+\normalsize
 \end{frame}
 
 \begin{frame}{Table of Results}
@@ -772,7 +761,7 @@ confidence intervals are shown in brackets.
 \begin{center}\includegraphics[width=0.4\linewidth,height=0.54\textheight]{pictures/LGsetting1} \includegraphics[width=0.4\linewidth,height=0.54\textheight]{pictures/LGsetting2} \end{center}
 
 \[
-\text{corr}(X_i,u_i)  = 0
+E(u_i \mid X_i) = 0
 \] \footnotesize\protect\hyperlink{LGQ}{(\textgreater\textgreater back)}
 \normalsize
 \end{block}
@@ -786,7 +775,7 @@ instrument}
 \begin{center}\includegraphics[width=0.48\linewidth,height=0.4\textheight]{pictures/IVsetting1} \includegraphics[width=0.48\linewidth,height=0.4\textheight]{pictures/IVsetting2} \end{center}
 
 \[
-\text{corr}(Z_i, X_i) \neq 0 \text{ and } \text{corr}(Z_i, u_i)  = 0
+\underset{\color{gray}{relevance}}{\text{corr}(Z_i, X_i)} \neq 0 \text{ and } \underset{\color{gray}{exogeneity}}{\text{corr}(Z_i, u_i)}  = 0
 \] \footnotesize\protect\hyperlink{IVQ}{(\textgreater\textgreater back)}
 \normalsize
 \end{block}
@@ -794,8 +783,8 @@ instrument}
 
 \begin{frame}{Causal Graph (III)}
 \protect\hypertarget{IVCCG}{}
-\begin{block}{IV regression with additional exogenous variables}
-\protect\hypertarget{iv-regression-with-additional-exogenous-variables-1}{}
+\begin{block}{IV regression with additional control variables}
+\protect\hypertarget{iv-regression-with-additional-control-variables-1}{}
 \begin{center}\includegraphics[width=0.48\linewidth,height=0.58\textheight]{pictures/IVCsetting1} \includegraphics[width=0.48\linewidth,height=0.58\textheight]{pictures/IVCsetting2} \end{center}
 
 \[
@@ -851,7 +840,7 @@ $\beta_2 < 0$ & \textcolor{green}{$plim\hat{\beta_1} < \beta_1$} & \textcolor{re
 \end{frame}
 
 \begin{frame}{Testing for regressor endogeneity (I)}
-\protect\hypertarget{testing-for-regressor-endogeneity-i}{}
+\protect\hypertarget{review-endog}{}
 \begin{enumerate}
 \tightlist
 \item
@@ -902,6 +891,9 @@ $\beta_2 < 0$ & \textcolor{green}{$plim\hat{\beta_1} < \beta_1$} & \textcolor{re
   Valid even in the case of heteroskedastic errors provided that we use
   robust variance estimates.
 \end{itemize}
+
+\footnotesize\protect\hyperlink{qa-endog}{(\textgreater\textgreater backG)}
+\normalsize
 \end{frame}
 
 \hypertarget{stata-codes-results}{%
@@ -914,6 +906,7 @@ $\beta_2 < 0$ & \textcolor{green}{$plim\hat{\beta_1} < \beta_1$} & \textcolor{re
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{* }\KeywordTok{regress}\NormalTok{ yvar xvar, }\FunctionTok{r}
+\CommentTok{// add option r to report Hetroskedasticity{-}robust standard errors}
 \end{Highlighting}
 \end{Shaded}
 
@@ -929,7 +922,8 @@ $\beta_2 < 0$ & \textcolor{green}{$plim\hat{\beta_1} < \beta_1$} & \textcolor{re
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{* }\KeywordTok{regress}\NormalTok{ xvar IVvar, }\FunctionTok{r}
+\NormalTok{* }\KeywordTok{regress}\NormalTok{ xvar IV, }\FunctionTok{r}
+\CommentTok{// add option r to report Hetroskedasticity{-}robust standard errors}
 \end{Highlighting}
 \end{Shaded}
 
@@ -962,7 +956,7 @@ $\beta_2 < 0$ & \textcolor{green}{$plim\hat{\beta_1} < \beta_1$} & \textcolor{re
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{* ivregress 2sls yvar (xvar = IV), }\FunctionTok{r}
-\NormalTok{* }\KeywordTok{estat} \KeywordTok{estat}\NormalTok{ firststage}
+\NormalTok{* }\KeywordTok{estat}\NormalTok{ firststage}
 \CommentTok{// report first{-}stage regression statistics}
 \end{Highlighting}
 \end{Shaded}
@@ -977,8 +971,8 @@ $\beta_2 < 0$ & \textcolor{green}{$plim\hat{\beta_1} < \beta_1$} & \textcolor{re
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{* ivregress 2sls yvar (xvar = IV), }\FunctionTok{r}
-\NormalTok{* }\KeywordTok{estat} \KeywordTok{estat}\NormalTok{ endog}
-\CommentTok{// perform tests of endogeneity}
+\NormalTok{* }\KeywordTok{estat}\NormalTok{ endog}
+\CommentTok{// perform tests of the endogeneity of xvar}
 \end{Highlighting}
 \end{Shaded}
 
@@ -1006,7 +1000,7 @@ $\beta_2 < 0$ & \textcolor{green}{$plim\hat{\beta_1} < \beta_1$} & \textcolor{re
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{* ivregress 2sls yvar wvar1 wvar2 wvark (xvar = IV), }\FunctionTok{r}
-\NormalTok{* }\KeywordTok{estat} \KeywordTok{estat}\NormalTok{ firststage}
+\NormalTok{* }\KeywordTok{estat}\NormalTok{ firststage}
 \CommentTok{// report first{-}stage regression statistics}
 \end{Highlighting}
 \end{Shaded}
@@ -1021,8 +1015,8 @@ $\beta_2 < 0$ & \textcolor{green}{$plim\hat{\beta_1} < \beta_1$} & \textcolor{re
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{* ivregress 2sls yvar wvar1 wvar2 wvark (xvar = IV), }\FunctionTok{r}
-\NormalTok{* }\KeywordTok{estat} \KeywordTok{estat}\NormalTok{ endog}
-\CommentTok{// perform tests of endogeneity}
+\NormalTok{* }\KeywordTok{estat}\NormalTok{ endog}
+\CommentTok{// perform tests of the endogeneity of xvar}
 \end{Highlighting}
 \end{Shaded}
 

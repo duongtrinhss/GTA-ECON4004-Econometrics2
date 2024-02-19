@@ -3,13 +3,14 @@
 **********************************************
 * Note: var = variable; yvar = dependent variable; xvar = regressor; 
 * IVvar = instrumental_variable wvar* = control_variable_no. *
-cd "~/GTA-ECON4004-Econometrics2/COMPUTER LAB 1/data"
+cd "/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 1/data/"
 use "fertility.dta", clear
 
 *** Q(a) ***
 * reg yvar xvar, r
 // report Hetroskedasticity-robust standard errors
 reg weeksm1 morekids, r
+reg weeksm1 morekids
 
 
 *** Q(e) ***
