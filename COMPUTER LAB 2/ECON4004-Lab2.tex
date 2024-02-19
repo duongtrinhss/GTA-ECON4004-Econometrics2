@@ -1,0 +1,330 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\PassOptionsToPackage{dvipsnames,svgnames,x11names}{xcolor}
+%
+\documentclass[
+  10pt,
+  ignorenonframetext,
+]{beamer}
+\usepackage{pgfpages}
+\setbeamertemplate{caption}[numbered]
+\setbeamertemplate{caption label separator}{: }
+\setbeamercolor{caption name}{fg=normal text.fg}
+\beamertemplatenavigationsymbolsempty
+% Prevent slide breaks in the middle of a paragraph
+\widowpenalties 1 10000
+\raggedbottom
+\setbeamertemplate{part page}{
+  \centering
+  \begin{beamercolorbox}[sep=16pt,center]{part title}
+    \usebeamerfont{part title}\insertpart\par
+  \end{beamercolorbox}
+}
+\setbeamertemplate{section page}{
+  \centering
+  \begin{beamercolorbox}[sep=12pt,center]{part title}
+    \usebeamerfont{section title}\insertsection\par
+  \end{beamercolorbox}
+}
+\setbeamertemplate{subsection page}{
+  \centering
+  \begin{beamercolorbox}[sep=8pt,center]{part title}
+    \usebeamerfont{subsection title}\insertsubsection\par
+  \end{beamercolorbox}
+}
+\AtBeginPart{
+  \frame{\partpage}
+}
+\AtBeginSection{
+  \ifbibliography
+  \else
+    \frame{\sectionpage}
+  \fi
+}
+\AtBeginSubsection{
+  \frame{\subsectionpage}
+}
+\usepackage{amsmath,amssymb}
+\usepackage{lmodern}
+\usepackage{setspace}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\geometry{left = 1cm, right = 0.5cm, top = 0.5cm, bottom = 0.5cm}
+\newif\ifbibliography
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\useinnertheme{rectangles}
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same} % disable monospaced font for URLs
+\hypersetup{
+  pdftitle={Econometrics: Multiple Regression and Applications},
+  pdfauthor={Duong Trinh},
+  colorlinks=true,
+  linkcolor={blue},
+  filecolor={Maroon},
+  citecolor={Blue},
+  urlcolor={Blue},
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Econometrics: Multiple Regression and Applications}
+\subtitle{ECON4004: LAB 2}
+\author{Duong Trinh}
+\date{2024-02-05}
+\institute{University of Glasgow}
+
+\begin{document}
+\frame{\titlepage}
+
+\setstretch{1.5}
+\begin{frame}{Summary}
+\protect\hypertarget{summary}{}
+\begin{itemize}
+\tightlist
+\item
+  Goals: Interactive effects
+\end{itemize}
+\end{frame}
+
+\hypertarget{exercise-1-based-on-stock-and-watson-e8.1}{%
+\section{Exercise 1: based on Stock and Watson,
+E8.1}\label{exercise-1-based-on-stock-and-watson-e8.1}}
+
+\begin{frame}[fragile]{Picture the Scenario}
+\protect\hypertarget{picture-the-scenario}{}
+\begin{itemize}
+\item
+  \textbf{Objective:} Investigate the effect of \emph{lead water pipes}
+  on \emph{infant mortality}.
+\item
+  \textbf{Dataset:} \texttt{lead$\_$mortality.dta}
+
+  \begin{itemize}
+  \tightlist
+  \item
+    data for 172 U.S. cities in 1900.
+  \end{itemize}
+\item
+  \textbf{Key variables:}
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \texttt{lead}: type of water pipes (lead or nonlead).
+  \item
+    \texttt{Inf}: the average infant mortality rate.
+  \item
+    \texttt{pH}: water acidity.
+  \item
+    several demographic variables.
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{For Thoughts}
+\protect\hypertarget{for-thoughts}{}
+\begin{itemize}
+\tightlist
+\item
+  Three types of interactions:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    1 Binary-Binary Interactions
+  \item
+    2 Binary-Continuous Interactions
+  \item
+    3 Continuous-Continuous Interactions
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
+\hypertarget{exercise-2-based-on-stock-and-watson-e13.1}{%
+\section{Exercise 2: based on Stock and Watson,
+E13.1}\label{exercise-2-based-on-stock-and-watson-e13.1}}
+
+\begin{frame}[fragile]{Picture the Scenario}
+\protect\hypertarget{picture-the-scenario-1}{}
+\begin{itemize}
+\item
+  \textbf{Objective:} A prospective employer receives two resumes: a
+  resume from a white job applicant and a similar resume from an African
+  American applicant. Is the employer more likely to call back the white
+  applicant to arrange an interview?
+\item
+  \textbf{Dataset:} \texttt{names.dta}
+
+  \begin{itemize}
+  \tightlist
+  \item
+    RCT experiment.
+  \end{itemize}
+\item
+  \textbf{Key variables:}
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \texttt{call\_back}: the callback rate.
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{For Thoughts}
+\protect\hypertarget{for-thoughts-1}{}
+\begin{itemize}
+\tightlist
+\item
+  The authors of the study claim that race was assigned randomly to the
+  resumes. Is there any evidence of nonrandom assignment?
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Stata codes}
+\protect\hypertarget{stata-codes}{}
+\footnotesize
+\centering
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{cd }\StringTok{"/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA{-}ECON4004{-}Econometrics2/Lab 1"}
+\KeywordTok{use} \StringTok{"Names.dta"}
+\KeywordTok{reg}\NormalTok{ call\_back }\BaseNTok{black}\NormalTok{, }\KeywordTok{robust}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+unable to change to /Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/Lab 1
+r(170);
+
+r(170);
+\end{verbatim}
+\end{frame}
+
+\begin{frame}[fragile]{R codes}
+\protect\hypertarget{r-codes}{}
+\footnotesize
+\centering
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Some code that I would like to see in HUGE character}
+\FunctionTok{head}\NormalTok{(mtcars)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+                   mpg cyl disp  hp drat    wt  qsec vs am gear carb
+Mazda RX4         21.0   6  160 110 3.90 2.620 16.46  0  1    4    4
+Mazda RX4 Wag     21.0   6  160 110 3.90 2.875 17.02  0  1    4    4
+Datsun 710        22.8   4  108  93 3.85 2.320 18.61  1  1    4    1
+Hornet 4 Drive    21.4   6  258 110 3.08 3.215 19.44  1  0    3    1
+Hornet Sportabout 18.7   8  360 175 3.15 3.440 17.02  0  0    3    2
+Valiant           18.1   6  225 105 2.76 3.460 20.22  1  0    3    1
+\end{verbatim}
+\end{frame}
+
+\begin{frame}[fragile]{Example}
+\protect\hypertarget{example}{}
+\footnotesize
+\centering
+
+\begin{verbatim}
+(1978 automobile data)
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+        make |          0
+       price |         74    6165.257    2949.496       3291      15906
+         mpg |         74     21.2973    5.785503         12         41
+       rep78 |         69    3.405797    .9899323          1          5
+    headroom |         74    2.993243    .8459948        1.5          5
+-------------+---------------------------------------------------------
+       trunk |         74    13.75676    4.277404          5         23
+      weight |         74    3019.459    777.1936       1760       4840
+      length |         74    187.9324    22.26634        142        233
+        turn |         74    39.64865    4.399354         31         51
+displacement |         74    197.2973    91.83722         79        425
+-------------+---------------------------------------------------------
+  gear_ratio |         74    3.014865    .4562871       2.19       3.89
+     foreign |         74    .2972973    .4601885          0          1
+\end{verbatim}
+\end{frame}
+
+\end{document}

@@ -1,0 +1,670 @@
+---
+title: "Econometrics: Multiple Regression and Applications"
+author: "Duong Trinh"
+date: "February 14, 2024"
+institute: University of Glasgow
+output:
+  beamer_presentation:
+    keep_tex: yes
+    slide_level: 2
+  slidy_presentation: default
+  ioslides_presentation: default
+  pdf_document: default
+subtitle: 'ECON4004: LAB 2'
+fontsize: 10pt
+geometry: left = 1cm, right = 0.5cm, top = 0.5cm, bottom = 0.5cm
+linestretch: 1.5
+linkcolor: blue
+header-includes:
+- \usepackage{float}
+- \usepackage{booktabs}
+- \usepackage{array}
+- \usepackage{multirow}
+- \usepackage{graphicx}
+# - \useinnertheme{rectangles}
+# - \setbeamertemplate{itemize item}{\scriptsize$\bowtie$}
+- \setbeamertemplate{itemize item}{$\diamond$}
+- \setbeamertemplate{itemize subitem}{\scriptsize$\diamond$}
+# - \setbeamertemplate{itemize subsubitem}{\scriptsize$\gg$}
+# - \setbeamertemplate{page number in head/foot}[totalframenumber]
+- \setbeamertemplate{navigation symbols}{}
+- \setbeamertemplate{footline}[page number]
+- \definecolor{blue}{RGB}{0,114,178}
+- \definecolor{red}{RGB}{213,94,0}
+- \definecolor{yellow}{RGB}{240,228,66}
+- \definecolor{green}{RGB}{0,158,115}
+---
+
+```{r, setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(knitr.table.format = function() {
+  if (knitr::is_latex_output()) 'latex' else 'pandoc'
+})
+```
+
+```{r, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, results='hide'}
+# install.packages("Statamarkdown")
+library(Statamarkdown)
+```
+
+
+## Intro
+
++ Duong Trinh
+  + PhD Student in Economics (Bayesian Microeconometrics)
+  + Email: \underline{Duong.Trinh@glasgow.ac.uk}
+
+\vspace{3mm}
+
++ ECON4004-LB01
+  + Wednesday 10am -12 pm
+  + 5 sessions (7-Feb, 14-Feb, 21-Feb, 28-Feb, 6-March)
+  + ST ANDREWS:357
+  
++ ECON4004-LB02
+  + Wednesday 12-2 pm
+  + 5 sessions (7-Feb, 14-Feb, 21-Feb, 28-Feb, 6-March)
+  + ST ANDREWS:357
+  
+## Record Attendance
+
+```{r, echo=FALSE, eval=FALSE, out.width='80%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 2/pictures/QRcodeAtd_LB01.png")
+```
+
+```{r, echo=FALSE, eval=FALSE, out.width='80%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 2/pictures/QRcodeAtd_LB02.png")
+```
+
+## Plan for LAB 2
+
++ Exercise 2: based on Stock and Watson, E13.1
++ Exercise 1: based on Stock and Watson, E8.1
+
+\vspace{3mm}
+
++ We will focus on *incorporating interactions between two independent variables into a regression model*.
+
+# Exercise 2: based on Stock and Watson, E13.1
+
+## Picture the Scenario
+
++ **Objective:** Examine Labor Market Discrimination: Are Emily and Greg More Employable Than Lakisha and Jamal?
+
+\vspace{0.8mm}
+
++ **Dataset:** \texttt{Names.dta}
+  + Experimental data from research on US labor market.
+
+\vspace{0.8mm}
+
++ **Key variables:**
+  + `call_back`: callback rate, measured by fraction of resumes that generate a phone call from prospective employer.
+  + `black`: $= 1$ for "African American–sounding name" resumes, $= 0$ for "white-sounding name" resumes.
+  + `female`: $= 1$ for women, $= 0$ for men.
+  + `high`: $= 1$ for high-quality resumes, $= 0$ for low-quality resumes.
+
+
+## Picture the Scenario
+Randomized Controlled Experiment [(Bertrand and Mullainathan, 2004)](https://pubs-aeaweb-org.ezproxy2.lib.gla.ac.uk/doi/pdfplus/10.1257/0002828042002561)
+
++ A prospective employer receives two resumes: a resume from a white job applicant and a similar resume from an African American applicant. Is the employer more likely to call back the white applicant to arrange an interview? 
+
++ Because race is not typically included on a resume, they differentiated resumes on the basis of “white-sounding
+names” such as Emily Walsh or Gregory Baker) and “African American–sounding names” (such as Lakisha Washington or Jamal Jones). 
+
++ A large collection of fictitious resumes was created, and the presupposed “race” (based on the “sound” of the name) was randomly assigned to each resume.
+
++ These resumes were sent to prospective employers to see which resumes generated a phone call (a callback) from the prospective employer. 
+
+## Questions
+
+### Random assignment \& Average effect 
+\footnotesize [(>>review)](#RCT) \normalsize
+
+(a) What was the callback rate for whites? For African Americans?  
+  Construct a $95\%$ confidence interval for difference in callback rates.  
+  Is the difference statistically significant? Is it large in a real-world sense?
+
+\vspace{0.8mm}
+
+(d) Authors of study claim that race was assigned randomly to the resumes.  
+  Is there any evidence of nonrandom assignment?
+  
+## Questions
+
+### Heterogeneous effects across subgroups
+
+(b) Is the African American/white callback rate differential different for men than for women?
+
+\vspace{0.8mm}
+
+(c) What is the difference in callback rates for high-quality versus low quality resumes?
+
+    What is the high-quality/low-quality difference for white applicants? For African American applicants?
+    
+    Is there a significant difference in this high-quality/low-quality difference for whites versus African Americans?
+    
+## (a) Callback rates for Whites versus African Americans?
+
+**Approach 1: Linear regression model** 
+
++ Model specification
+
+$$
+\begin{aligned}
+call\_back_i &= \beta_0 + \beta_1\cdot black_i + u_i\\
+\\
+E[call\_back \mid black = 1] &= \beta_0 + \beta_1 &\rightarrow \text{for African Americans}\\
+E[call\_back \mid black = 0] &= \beta_0 &\rightarrow \text{for White}\\
+\Delta &= \beta_1 &\rightarrow \text{the Difference}
+\end{aligned}
+$$
+
+## (a) Callback rates for Whites versus African Americans?
+
++ OLS estimation results \footnotesize [(>>stata)](#res1-regBlack) \normalsize
+$$
+\begin{aligned}
+\underset{(se)}{\widehat{call\_back}} = \underset{(0.006)}{0.097} - \underset{(0.008)}{0.032}\cdot black
+\end{aligned}
+$$
+
++ *On average*, the call-back rate for whites is $\hat{\beta}_0 = 0.097$ and the call-back for
+blacks is $\hat{\beta}_0 + \hat{\beta}_1 = 0.097 - 0.032 = 0.065$. This implies that $9.7\%$ of resumes with white-sounding names generated a call back, while only $6.5\%$ of resumes with black-sounding names generated a call back.
+
+\vspace{0.8mm}
+
++ The difference is $\hat{\beta}_1 = -0.032$, which is statistically significant at the $1\%$ significance level ($t-statistic = -4.11, p-value = 0.00<0.01$).
+
+## (a) Callback rates for Whites versus African Americans?
+
+**Approach 2: Two-sample t test**
+
++ Purpose: Test if two population means are equal [(reference)](https://www.itl.nist.gov/div898/handbook/eda/section3/eda353.htm).
++ The data may either be *paired* or *unpaired*. The variances of the two samples may be assumed to be *equal* or *unequal*.
+
+\vspace{2mm}
+
++ STATA note:
+
+\footnotesize
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+* ttest yvar, by(groupvar)
+// Test if mean(yvar) equal between 2 groups defined by groupvar
+```
+
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+* ttest yvar, by(groupvar) unequal
+// Test if mean(yvar) equal between 2 groups defined by groupvar
+// add option 'unequal' to assume unequal variances
+```
+
+## (a) Callback rates for Whites versus African Americans?
+
+**Approach 2: Two-sample t test**
+\footnotesize
+
+```{r, echo=FALSE, out.width='85%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 2/pictures/res2-ttestBlack.png")
+```
+
+\normalsize
+$\Rightarrow$ Same conclusion as the first approach.
+
+## (d) Is there any evidence of nonrandom assignment of race \ to resumes?
+
++ Idea: Is there statistically significant difference in other characteristics for two groups - black and
+white sounding names?  \footnotesize [(>>review)](#RCTC) \normalsize
+
+\vspace{0.8mm}
+
++ Use any approach in (a), calculate estimated means of other characteristics for these two groups and test whether the difference is statistically significant.
+
+\vspace{0.8mm}
+
++ There are only two significant differences in the mean values:
+the call-back rate (the outcome variable of interest) and computer skills 
+(for which black-named resumes had a slightly higher fraction that white-named resumes). 
+
+$\Rightarrow$ There is no evidence of non-random assignment.
+
+<!-- ## (b) Is the African American/white callback rate differential different for men than for women? -->
+
+<!-- **Model specification** -->
+<!-- \small -->
+<!-- $$ -->
+<!-- \begin{aligned} -->
+<!-- call\_back_i &= \beta_0 + \beta_1\cdot black_i + \beta_2 \cdot black_i \times female_i+ u_i\\ -->
+<!-- \\ -->
+<!-- E[call\_back \mid black = 1,female = 1] &= \beta_0 + \beta_1 + \beta_2 \rightarrow \text{for African Americans women}\\ -->
+<!-- E[call\_back \mid black = 0, female =1] &= \beta_0 + \beta_2 \rightarrow \text{for White women}\\ -->
+<!-- \Delta_{female = 1} &= \beta_1 \rightarrow \text{the Difference in women group}\\ -->
+<!-- \\ -->
+<!-- E[call\_back \mid black = 1,female = 0] &= \beta_0 + \beta_1 \rightarrow \text{for African Americans men}\\ -->
+<!-- E[call\_back \mid black = 0, female =0] &= \beta_0 \rightarrow \text{for White men}\\ -->
+<!-- \Delta_{female = 0} &= \beta_1 \rightarrow \text{the Difference in men group}\\ -->
+<!-- \end{aligned} -->
+<!-- $$ -->
+
+<!-- ## (b) Is the African American/white callback rate differential different for men than for women? -->
+
+<!-- + OLS estimation results \footnotesize [(>>stata)](#res1-regBlack) \normalsize -->
+<!-- $$ -->
+<!-- \begin{aligned} -->
+<!-- \underset{(se)}{\widehat{call\_back}_i} = \underset{(0.06)}{0.097} + \underset{(0.012)}{-0.038}\cdot black_i + \underset{(0.012)}{0.008}\cdot black_i \times female_i+ u_i -->
+<!-- \end{aligned} -->
+<!-- $$ -->
+
+<!-- + The call-back rate for male blacks -->
+
+## (d) Is there any evidence of nonrandom assignment of race \ to resumes?
+\footnotesize
+```{r, echo=FALSE, out.width='100%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 2/pictures/otherW.png")
+```
+
+$\ldots$
+
+## (c1) Callback rates for high-quality versus low-quality resumes?
+
++ OLS estimation results \footnotesize [(>>stata)](#res3-regHigh) \normalsize
+$$
+\begin{aligned}
+\underset{(se)}{\widehat{call\_back}} = \underset{(0.005)}{0.073} + \underset{(0.008)}{0.014}\cdot high
+\end{aligned}
+$$
+
++ On average, the call-back rate for low-quality resumes is $0.073$ and for high-quality resumes is $0.073 + 0.014 = 0.087$. 
++ The difference is $0.014$, which is not significant at the $5\%$ level, but is at the $10\%$ level ($t-statistic = 1.80$)
+
+## (c2) A significant difference in the high-quality/low-quality difference for whites versus African Americans?
+
+**Model specification**
+
+$$
+call\_back_i = \beta_0 + \beta_1\cdot black_i + \beta_2 \cdot high_i + \beta_3 \cdot black_i \times high_i+ u_i
+$$
+\small
+$$
+\begin{aligned}
+E[call\_back \mid high = 1, black = 1] &= \beta_0 + \beta_1 + \beta_2 + \beta_3 \rightarrow \text{for high-quality blacks}\\
+E[call\_back \mid high = 0, black = 1] &= \beta_0 + \beta_1 \rightarrow \text{for low-quality blacks}\\
+\Delta^{HvL}_{black = 1} &= \beta_2 + \beta_3 \rightarrow \text{the h/l difference in black group}\\
+\\
+E[call\_back \mid high = 1, black = 0] &= \beta_0 + \beta_2 \rightarrow \text{for high-quality whites}\\
+E[call\_back \mid high = 0, black = 0] &= \beta_0 \rightarrow \text{for low-quality whites}\\
+\Delta^{HvL}_{black = 0} &= \beta_2 \rightarrow \text{the h/l difference in white group}\\
+\\
+\Delta^{HvL}_{black = 1} - \Delta^{HvL}_{black = 0} &= \beta_3
+\end{aligned}
+$$
+
+## (c2) A significant difference in the high-quality/low-quality difference for whites versus African Americans?
++ OLS estimation results \footnotesize [(>>stata)](#res4-regHighBlack) \normalsize
+\small
+$$
+\begin{aligned}
+\underset{(se)}{\widehat{call\_back}} = \underset{(0.008)}{0.084} - \underset{(0.011)}{0.023}\cdot black + \underset{(0.012)}{0.023}\cdot high - \underset{(0.016)}{0.018}\cdot black \times high
+\end{aligned}
+$$
+
+\normalsize
++ On average, the high-quality/low-quality difference for whites is $\hat{\beta}_2 = 0.023$ and for blacks is $\hat{\beta}_2 + \hat{\beta}_3 = 0.023 - 0.018 = 0.005$.
+
+\vspace{0.8mm}
+
++ The black-white difference is $\hat{\beta}_3 = -0.018$, which is not statistically significant at the $5\%$ level ($t-statistic = -1.14$).
+
+## Table of Results
+
+\small
+
+\begin{table}[]
+\centering
+\begin{tabular}{@{}|l|ccc|@{}}
+\toprule
+ &
+  \multicolumn{3}{l|}{\textbf{Dependent Variable = call$\_$back}} \\ \midrule
+\textbf{Regressor} &
+  \multicolumn{1}{c|}{\textbf{(a)}} &
+  \multicolumn{1}{c|}{\textbf{(c1)}} &
+  \textbf{(c2)} \\ \midrule
+\textit{black} &
+  \multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}-0.032\\ (0.008)\end{tabular}} &
+  \multicolumn{1}{c|}{} &
+  \begin{tabular}[c]{@{}c@{}}-0.023\\ (0.011)\end{tabular} \\ \midrule
+\textit{high} &
+  \multicolumn{1}{c|}{} &
+  \multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}0.014\\ (0.008)\end{tabular}} &
+  \begin{tabular}[c]{@{}c@{}}0.023\\ (0.012)\end{tabular} \\ \midrule
+\textit{black $\times$ high} &
+  \multicolumn{1}{c|}{} &
+  \multicolumn{1}{c|}{} &
+  \begin{tabular}[c]{@{}c@{}}-0.018\\ (0.016)\end{tabular} \\ \midrule
+\textit{Intercept} &
+  \multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}0.097\\ (0.006)\end{tabular}} &
+  \multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}0.073\\ (0.005)\end{tabular}} &
+  \begin{tabular}[c]{@{}c@{}}0.084\\ (0.008)\end{tabular} \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\center\footnotesize Notes: Standard errors shown in parentheses.
+
+# Exercise 1: based on Stock and Watson, E8.1
+
+## Picture the Scenario
+
++ **Objective:** Investigate the effect of *lead water pipes* on *infant mortality* (*with a focus on interaction effects*).
+
+\vspace{0.8mm}
+
++ **Dataset:** \texttt{lead$\_$mortality.dta}
+  + Data for 172 U.S. cities in 1900.
+
+\vspace{0.8mm}
+
++ **Key variables:**
+  + `Lead`: type of water pipes (lead or nonlead).
+  + `Inf`: the average infant mortality rate.
+  + `pH`: water acidity.
+  + several demographic variables.
+
+## Questions
+(a) Compute the average infant mortality rate (`Inf`) for cities with lead pipes and for cities with
+nonlead pipes.  
+Is there a statistically significant difference in the averages?
+
+## Questions
+(b) The amount of lead leached from lead pipes depends on the chemistry of the water running
+through the pipes. The more acidic the water is (i.e. the lower its pH), the more lead is
+leached. Run a regression of `Inf` on `Lead`, `pH`, and the interaction term `Lead` $\times$ `pH`.
+\small
+1. Explain what coefficients measure.
+
+2. Plot the estimated regression function relating `Inf` to `pH` for $Lead = 0$ and for $Lead = 1$.
+
+3. Does `Lead` have a statistically significant effect on `Inf`? Explain.
+
+4. Does the effect of `Lead` on `Inf` depend on `pH`? Is this dependence statistically significant?
+
+5. What is the median value of `pH` in the sample? At this `pH` level, what is the estimated effect of `Lead` on `Inf`? What is the standard deviation of `pH`?  
+Suppose the pH level is one standard deviation lower than the median level of pH in the sample: What is the estimated effect of Lead on infant mortality?  
+What if pH is one standard deviation higher than the median value?
+
+## (a) Compute the average `Inf` for cities with lead pipes and for cities with nonlead pipes. Is there a statistically significant difference in the averages?
+
+**Two-sample t test**
+\footnotesize
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+* ttest yvar, by(groupvar) unequal
+// Test if mean(yvar) equal between 2 groups defined by groupvar
+// add option 'unequal' to assume unequal variances
+```
+
+## (a) Compute the average `Inf` for cities with lead pipes and for cities with nonlead pipes. Is there a statistically significant difference in the averages?
+
+\footnotesize
+```{r, echo=FALSE, out.width='100%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 2/pictures/ex1-res1-ttestLead.png")
+```
+
+
+## (a) Compute the average `Inf` for cities with lead pipes and for cities with nonlead pipes. Is there a statistically significant difference in the averages?
+
+\begin{table}[]
+\centering
+\begin{tabular}{|l|r|r|r|}
+\hline
+                             & n & $\bar{Y}$ & SE($\bar{Y}$) \\ \hline
+Lead    & 117 & 0.403 & 0.014 \\ \hline
+No Lead & 55  & 0.381 & 0.020 \\ \hline
+\textit{Difference} &            & \textit{0.022}                    & \textit{0.024}                        \\ \hline
+\end{tabular}
+\end{table}
+
+<!-- ```{r, echo=FALSE, out.width='100%', fig.show='hold', fig.align='center', fig.pos = 'H'} -->
+<!-- library(knitr) -->
+<!-- knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 2/pictures/quickTable.png") -->
+<!-- ``` -->
+
+\small
++ The difference in the sample means is 0.022 with a standard error of 0.024. 
+\vspace{0.8mm}
+
++ The estimate implies that cities with lead pipes have a larger infant mortality rate (by 0.02 deaths per 100
+people in the population), but the standard error is large (0.024) and the difference is not statistically significant ($t = 0.022/0.024 \approx 0.9$).
+
+## (b) Regression of `Inf` on `Lead`, `pH`, and the interaction \ \ term `Lead` $\times$ `pH`
+
+**Model specification**
+
+$$
+Inf_i = \beta_0 + \beta_1\cdot Lead_i + \beta_2 \cdot pH_i + \beta_3 \cdot Lead_i \times pH_i + u_i
+$$
+
+$$
+\begin{aligned}
+(1)\quad \color{blue}{E[Inf \mid Lead, pH]} &\color{blue}{= \beta_0 + (\beta_1 \cdot Lead + \beta_2 \cdot pH + \beta_3 \cdot pH \times Lead)}\\
+\\
+(2)\quad \color{red}{E[Inf \mid Lead, pH]} &\color{red}{= (\beta_0 + \beta_2 \cdot pH) + (\beta_1 + \beta_3 \cdot pH) \times Lead}\\
+\\
+(3)\quad \color{green}{E[Inf \mid Lead, pH]} &\color{green}{= (\beta_0 + \beta_1 \cdot Lead) + (\beta_2 + \beta_3 \cdot Lead) \times pH}
+\end{aligned}
+$$
+
+## (b1) Understand what coefficients measure.
+
+$$
+\begin{aligned}
+\text{From (1):} \quad  \color{blue}{E[Inf \mid Lead, pH]} &\color{blue}{= \beta_0 + (\beta_1 \cdot Lead + \beta_2 \cdot pH + \beta_3 \cdot pH \times Lead)}\\
+\\
+E[Inf \mid Lead = 0, pH = 0] &= \beta_0\\
+\end{aligned}
+$$
+
+$\Rightarrow$ The intercept $\beta_0$ shows the level of `Inf` when $Lead = 0$ and $pH = 0$. It dictates the level of the regression line.
+
+## (b1) Understand what coefficients measure.
+
+$$
+\begin{aligned}
+\text{From (2):} \quad \color{red}{E[Inf \mid Lead, pH]} &\color{red}{= (\beta_0 + \beta_2 \cdot pH) + (\beta_1 + \beta_3 \cdot pH) \times Lead}\\
+\\
+E[Inf \mid Lead = 1, pH] &= (\beta_0 + \beta_2 \cdot pH) + (\beta_1 + \beta_3 \cdot pH)\\
+E[Inf \mid Lead = 0, pH] &= (\beta_0 + \beta_2 \cdot pH)\\
+\rightarrow \Delta^{Lead-NoLead}_{pH \text{ fixed}} &= \hspace{2.6cm} (\beta_1 + \beta_3 \cdot pH)
+\end{aligned}
+$$
+
+$\Rightarrow$ $\beta_1$ and $\beta_3$ measure the effect of `Lead` on `Inf`. Comparing 2 cities, one with lead pipes ($Lead = 1$) and one without lead pipes ($Lead = 0$), but the same of `pH`, the difference in infant mortality rate on average is
+$\beta_1 + \beta_3 \cdot pH$.
+
+## (b1) Understand what coefficients measure.
+
+$$
+\begin{aligned}
+\text{From (3):} \quad \color{green}{E[Inf \mid Lead, pH]} &\color{green}{= (\beta_0 + \beta_1 \cdot Lead) + (\beta_2 + \beta_3 \cdot Lead) \times pH}\\
+\\
+E[Inf \mid pH = c+1, Lead] &=(\beta_0 + \beta_1 \cdot Lead) + (\beta_2 + \beta_3 \cdot Lead) \times (c + 1)\\
+E[Inf \mid pH = c, Lead] &= (\beta_0 + \beta_1 \cdot Lead) + (\beta_2 + \beta_3 \cdot Lead) \times c\\
+\rightarrow \Delta^{\text{increase pH by 1}}_{Lead \text{ fixed}} &= \hspace{2.85cm}(\beta_2 + \beta_3 \cdot Lead)
+\end{aligned}
+$$
+
+$\Rightarrow$ $\beta_2$ and $\beta_3$ measure the effect of `pH` on `Inf`. Comparing 2 cities, with 1 unit differential in `pH`, but the same of `Lead`, the difference in infant mortality rate on average is
+$\beta_2 + \beta_3 \cdot Lead$.
+
+## (b1) Run the regression and Interpret.
+
+<!-- $$ -->
+<!-- \widehat{Inf}_i = \hat\beta_0 + \hat\beta_1\cdot Lead_i + \hat\beta_2 \cdot pH_i + \hat\beta_3 \cdot Lead_i \times pH_i -->
+<!-- $$ -->
+
+OLS estimation results \footnotesize [(>>stata)](##ex1-res2-regLeadpH) \normalsize
+$$
+\underset{(se)}{\widehat{Inf}} = \underset{(0.150)}{0.919} + \underset{(0.208)}{0.462} \cdot Lead - \underset{(0.021)}{0.075} \cdot pH - \underset{(0.028)}{0.057} \cdot Lead \times pH
+$$
+
+\small
+
+\pause
+
++ $\hat{\beta}_0 = 0.919$ shows the level of `Inf` when $Lead = 0$ and $pH = 0$. It dictates the level of the regression line.
+
+\pause
+
++ Comparing 2 cities, one with lead pipes $Lead = 0$ and one without lead pipes $Lead = 0$, but the same of pH, the difference in predicted infant mortality rate is
+$$
+(2') \quad \widehat{Inf}(Lead=1,pH) - \widehat{Inf}(Lead=0,pH) = 0.462-0.057\cdot pH 
+$$
+\pause
+
++ Comparing 2 cities, one with $pH = 6$ and one with with $pH = 6$, but the same of `Lead`, the difference in predicted infant mortality rate is
+$$
+(3') \quad \widehat{Inf}(pH = 6,Lead) - \widehat{Inf}(pH = 5,Lead) = -0.075-0.057\cdot Lead 
+$$
+$\Rightarrow$ so the difference is $-0.075$ for cities without lead pipes and $-0.132$ for cities with lead pipes.
+
+## (b2) Plot the estimated regression function relating `Inf` to `pH` for $Lead = 0$ and for $Lead = 1$.
+
+```{r, echo=FALSE, out.width='80%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 2/pictures/ex1-Lineplot.png")
+```
+
+$\Rightarrow$ The infant mortality rate is higher for cities with lead pipes, but the difference declines as the
+pH level increases. \footnotesize [(>>stata)](#ex1-res3-plotRegLine) \normalsize
+
+## (b2) The difference in infant mortality rates between cities with lead pipes and cites without lead pipes
+
+\normalsize
++ At the $10^{th}$ percentile of pH ($6.4$) is 
+\small
+$$
+\widehat{Inf}(Lead=1,pH=6.4) - \widehat{Inf}(Lead=0,pH=6.4) = 0.462-0.057\times6.4 \approx 0.097
+$$
+\normalsize
++ At the $50^{th}$ percentile of pH ($7.5$) is 
+\small
+$$
+\widehat{Inf}(Lead=1,pH=7.5) - \widehat{Inf}(Lead=0,pH=7.5) = 0.462-0.057\times7.5 \approx 0.035
+$$
+\normalsize
++ At the $90^{th}$ percentile of pH ($8.2$) is 
+\small
+$$
+\widehat{Inf}(Lead=1,pH=8.2) - \widehat{Inf}(Lead=0,pH=8.2) = 0.462-0.057\times8.2 \approx  0.005
+$$
+
+\footnotesize
++ *Note: Refer to equation (2') in (b1).*
+
+## (b3) Does `Lead` have a statistically significant effect on \ \ `Inf`? Explain.
+
++ Null Hypothesis: $H_0: \beta_1 = \beta_3 = 0$ \footnotesize [(>>stata)](#ex1-res4-FtestLead) \normalsize
+
+\vspace{0.8mm}
+
++ The F-statistic for the coefficient on `Lead` and the interaction term is $F = 3.94$, which has a p-value of 0.02, so the coefficients are jointly statistically significantly different from zero at the $5\%$ but not the $1\%$ significance level.
+
+## (b4) Does the effect of `Lead` on `Inf` depend on `pH`? Is this dependence statistically significant?
+
++ Null Hypothesis: $H_0: \beta_3 = 0$ \footnotesize [(>>stata)](##ex1-res2-regLeadpH) \normalsize
+
+\vspace{0.8mm}
+
++ The interaction term has a t statistic of $t = -2.02$, so the coefficient is significant at the $5\%$ but not the $1\%$ significance level.
+
+# BRIEF REVIEW
+
+## Causal Graph (I) {#RCT}
+
+### Randomized Experiment 
+
+```{r fig-RCT, echo=FALSE, out.width='40%', out.height="54%", fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics(c("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 2/pictures/RCTsetting1.png",
+"/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 2/pictures/RCTsetting2.png"))
+```
+
+\footnotesize[(>>back)](#RCTQ) \normalsize
+
+## Causal Graph (II) {#RCTC}
+
+### Randomized Experiment with additional characteristics
+
+```{r fig-RCTC, echo=FALSE, out.width='40%', out.height="54%", fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics(c("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 2/pictures/RCTCsetting1.png",
+"/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 2/pictures/RCTCsetting2.png"))
+```
+\footnotesize[(>>back)](#RCTQ) \normalsize
+
+# STATA CODES \& RESULTS
+
+## Exercise 2(a) {#res1-regBlack}
+
+```{r, echo=FALSE, out.width='100%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 2/pictures/res1-regBlack.png")
+```
+
+## Exercise 2(a)
+\small
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+* ttest yvar, by(groupvar) unequal
+// Test if mean(yvar) equal between 2 groups defined by groupvar
+// add option 'unequal' to assume unequal variances
+```
+
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 2/pictures/res2-ttestBlack.png")
+```
+
+## Exercise 2(c1) {#res3-regHigh}
+```{r, echo=FALSE, out.width='100%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 2/pictures/res3-regHigh.png")
+```
+
+## Exercise 2(c2) {#res4-regHighBlack}
+```{r, echo=FALSE, out.width='100%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 2/pictures/res4-regHighBlack.png")
+```
+
+
+
+## Exercise 1(a) {#ex1-res1-ttestLead}
+```{r, echo=FALSE, out.width='100%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 2/pictures/ex1-res1-ttestLead.png")
+```
+
+## Exercise 1(b1) {#ex1-res2-regLeadpH}
+```{r, echo=FALSE, out.width='100%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 2/pictures/ex1-res2-regLeadpH.png")
+```
+
+## Exercise 1(b2) {#ex1-res3-plotRegLine}
+```{r, echo=FALSE, out.width='100%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 2/pictures/ex1-res3-plotRegLine.png")
+```
+
+## Exercise 1(b3) {#ex1-res4-FtestLead}
+```{r, echo=FALSE, out.width='100%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 2/pictures/ex1-res4-FtestLead.png")
+```
+
+
+
