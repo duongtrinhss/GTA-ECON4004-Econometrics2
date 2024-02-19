@@ -8,7 +8,7 @@ Econometrics 2: Multiple Regression and Applications
 
 1. [COMPUTER LAB 1](https://nbviewer.org/github/duongtrinhss/GTA-ECON4004-Econometrics2/blob/main/COMPUTER%20LAB%201/ECON4004-Lab1-slides.pdf)
 
-2. COMPUTER LAB 2
+2. [COMPUTER LAB 2](https://nbviewer.org/github/duongtrinhss/GTA-ECON4004-Econometrics2/blob/main/COMPUTER%20LAB%202/ECON4004-Lab2-slides.pdf)
 
 3. COMPUTER LAB 3
 
