@@ -1,7 +1,10 @@
 # GTA-ECON4004-Econometrics2
+
+## Course Description
+
 Econometrics 2: Multiple Regression and Applications
 
-## Slides
+## LAB Slides
 
 1. [COMPUTER LAB 1](https://nbviewer.org/github/duongtrinhss/GTA-ECON4004-Econometrics2/blob/main/COMPUTER%20LAB%201/ECON4004-Lab1-slides.pdf)
 
