@@ -1,0 +1,905 @@
+---
+title: "Econometrics: Multiple Regression and Applications"
+author: "Duong Trinh"
+date: "February 21, 2024"
+institute: University of Glasgow
+output:
+  beamer_presentation:
+    keep_tex: yes
+    slide_level: 2
+    includes:
+      in_header: preamble_reallywidehat.tex
+  slidy_presentation: default
+  ioslides_presentation: default
+  pdf_document: default
+subtitle: 'ECON4004: LAB 3'
+fontsize: 10pt
+geometry: left = 1cm, right = 0.5cm, top = 0.5cm, bottom = 0.5cm
+linestretch: 1.5
+linkcolor: blue
+header-includes:
+- \usepackage{float}
+- \usepackage{booktabs}
+- \usepackage{array}
+- \usepackage{multirow}
+# - \useinnertheme{rectangles}
+# - \setbeamertemplate{itemize item}{\scriptsize$\bowtie$}
+- \setbeamertemplate{itemize item}{$\diamond$}
+- \setbeamertemplate{itemize subitem}{\scriptsize$\diamond$}
+# - \setbeamertemplate{itemize subsubitem}{\scriptsize$\gg$}
+# - \setbeamertemplate{page number in head/foot}[totalframenumber]
+- \setbeamertemplate{navigation symbols}{}
+- \setbeamertemplate{footline}[page number]
+- \definecolor{blue}{RGB}{0,114,178}
+- \definecolor{red}{RGB}{213,94,0}
+- \definecolor{yellow}{RGB}{240,228,66}
+- \definecolor{green}{RGB}{0,158,115}
+---
+
+```{r, setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(knitr.table.format = function() {
+  if (knitr::is_latex_output()) 'latex' else 'pandoc'
+})
+```
+
+```{r, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, results='hide'}
+# install.packages("Statamarkdown")
+library(Statamarkdown)
+```
+
+## Intro
+
++ Duong Trinh
+  + PhD Student in Economics (Bayesian Microeconometrics)
+  + Email: \underline{Duong.Trinh@glasgow.ac.uk}
+
+\vspace{3mm}
+
++ ECON4004-LB01
+  + Wednesday 10am -12 pm
+  + 5 sessions (7-Feb, 14-Feb, 21-Feb, 28-Feb, 6-March)
+  + ST ANDREWS:357
+  
++ ECON4004-LB02
+  + Wednesday 12-2 pm
+  + 5 sessions (7-Feb, 14-Feb, 21-Feb, 28-Feb, 6-March)
+  + ST ANDREWS:357
+  
+## Record Attendance
+
+```{r, echo=FALSE, eval=FALSE, out.width='80%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 2/pictures/QRcodeAtd_LB01.png")
+```
+
+```{r, echo=FALSE, eval=FALSE, out.width='80%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 2/pictures/QRcodeAtd_LB02.png")
+```
+
+# Exercise 1: based on Wooldridge, Exercise C17.8
+
+## Picture the Scenario
+
++ **Objective:** Examine the effect of *participation in the job training program* on *unemployment probabilities* and *earnings* in 1978.
+
++ **Dataset:** \texttt{JTRAIN2.dta}
+  + data on a job training experiment for a group of men. Men could enter the program starting in January 1976 through about mid-1977. The program ended in December 1977. 
+
++ **Key variables:**
+  + `train`: job training indicator.
+  + `unem78`: denoting being unemployed in 1978. (*outcome variable*)
+  + `unem75`, `unem74`: denoting being unemployed in 1975 and 1974, respectively. (*pretraining variable*)
+  + several demographic variables: `age`, `educ`, `black`, `hisp`, and `married`.
+
+## Questions
+
+(i) How many men in the sample participated in the job training program? 
+    What was the highest number of months a man actually participated in the program?
+    
+(ii) Run a linear regression of `train` on `unem75`, `unem74`, `age`, `educ`, `black`, `hisp`, and `married`. Are these variables jointly significant at the $5\%$ level?
+
+(iii) Estimate a probit version of the linear model in part (ii). Compute the likelihood ratio test for joint significance of all variables. What do you conclude?
+
+(iv) Based on your answers to parts (ii) and (iii), does it appear that participation in job training can be treated as exogenous for explaining 1978 unemployment status? Explain.
+
+## Questions
+
+### Single explanatory variable
+
+(v) Run a simple regression of `unem78` on `train`. What is the estimated effect of participating in the job training program on the probability of being unemployed in 1978? Is it statistically significant?
+
+(vi) Run a probit of `unem78` on `train`. Does it make sense to compare the probit coefficient on train with the coefficient obtained from the linear model in part (v)?
+
+(vii) Find the fitted probabilities from parts (v) and (vi). Explain why they are identical. 
+      Which approach would you use to measure the effect and statistical significance of the job training program?
+
+## Questions
+
+### Additional controls & Average partial affect (APE)
+
+(viii) Add all the variables from part (ii) as additional controls to the models from parts (v) and (vi). Are the fitted probabilities now identical? What is the correlation between them?
+
+(ix) Using the model from part (viii), estimate the *average partial effect* of train on the 1978 unemployment probability.  
+How does the estimate compare with the OLS estimate from part (viii)?
+
+(x) Estimate the *average partial effects* of the remaining regressors in (ix) on the 1978 unemployment probability.  
+How does the estimate compare with the OLS estimate from part (viii)?
+
+## (i) How many men in the sample participated in the job training program? What was the highest number of months a man actually participated in the program?
+    
+## (ii) Run a linear regression of `train` on `unem75`, `unem74`, `age`, `educ`, `black`, `hisp`, and `married`. 
+
+Linear Probability Model (LPM)
+
+$$
+\begin{aligned}
+train_i = \delta_0 + \delta_1 \cdot unem74_i + \delta_2 \cdot unem75_i + \delta_3 \cdot age_i + \delta_4 \cdot educ_i +\\
++ \delta_5 \cdot black_i + \delta_6 \cdot hisp_i + \delta_7 \cdot married_i + u_i
+\end{aligned}
+$$
+
+<!-- that implies -->
+
+<!-- $$ -->
+<!-- \begin{aligned} -->
+<!-- \text{Pr}(train = 1 \mid \mathbf{x}) = \beta_0 + \beta_1 \cdot unem75 + \beta_2 \cdot unem74 + \beta_3 \cdot age + \beta_4 \cdot educ +\\ -->
+<!-- + \beta_5 \cdot black + \beta_6 \cdot hisp + \beta_7 \cdot married -->
+<!-- \end{aligned} -->
+<!-- $$ -->
+
+OLS estimation result \footnotesize [(>>stata)](#LMPtrain_norobust) 
+\small
+$$
+\begin{aligned}
+\underset{(se)}{\widehat{train}} = \underset{(.189)}{.338} + \underset{(.077)}{.021} \cdot unem74 - \underset{(.072)}{.096} \cdot unem75 + \underset{(.003)}{.003} \cdot age + \underset{(.013)}{.012} \cdot educ +\\- \underset{(.088)}{.082} \cdot black - \underset{(.112)}{.200} \cdot hisp + \underset{(.064)}{.037} \cdot married
+\end{aligned}
+$$
+
+## (ii) Are these variables jointly significant at the $5\%$ level?
+
++ Null Hypothesis: $H_0: \delta_1 = \delta_2 = \ldots = \delta_7 = 0$ \footnotesize [(>>stata)](#LMPtrain_norobust) \normalsize
+
++ The F statistic for joint significance of the explanatory variables is $F(7,437) = 1.43$ with $p-value = .19$. Therefore, they are jointly insignificant at even the 15% level. 
+
++ Note that, even though we have estimated a linear probability model, the null hypothesis we are testing is that
+all slope coefficients are zero, and so there is no heteroskedasticity under H0. This means that the usual F-statistic is asymptotically valid.
+
+## (iii) Estimate a probit version of linear model in part (ii). 
+
+Probit Model (PROBIT)
+\small
+$$
+\begin{aligned}
+\text{Pr}(train = 1 \mid \mathbf{x}) = \Phi(\delta_0 + \delta_1 \cdot unem75 + \delta_2 \cdot unem74 + \delta_3 \cdot age + \delta_4 \cdot educ +\\
++ \delta_5 \cdot black + \delta_6 \cdot hisp + \delta_7 \cdot married)
+\end{aligned}
+$$
+
+## [SN] Stata command for Probit regression
+
+\small
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+* probit depvar indepvars [, options]
+```
+
++ For the LPM, standard errors should be made robust to heteroskedasticity
+  + The estimates of the marginal effects in linear regression are consistent under heteroskedasticity and using robust standard errors yields correct inference.
+  + STATA: add option `robust` or `vce(robust)` to return heteroskedasticity-robust standard errors.
+  
++ For PROBIT, there is no advantage in using robust standard errors. [(reference)](https://blog.stata.com/2016/08/30/two-faces-of-misspecification-in-maximum-likelihood-heteroskedasticity-and-robust-standard-errors/#disqus_thread)
+  + They do not solve the problems associated with heteroskedasticity for a nonlinear model estimated using maximum likelihood;  do not help us obtain correct inference.
+  + They has a different interpretation.
+  + STATA: option `robust` or `vce(robust)` is unnecessary, 
+
+<!-- + Terminology: Robust sandwich form for the variance-covariance matrix of the estimator (VCE)/A robust estimate of the variance–covariance matrix will not help us obtain correct inference. -->
+
+## [SN] Stata command for Probit regression
+
+\small
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+* probit depvar indepvars [, options]
+```
+
+```{r, echo=FALSE, out.width='85%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/pictures/PROBITtrain.png")
+```
+
+## (iii) Estimate a probit version of linear model in part (ii). 
+
+Probit Model (PROBIT)
+\small
+$$
+\begin{aligned}
+\text{Pr}(train = 1 \mid \mathbf{x}) = \Phi(\delta_0 + \delta_1 \cdot unem75 + \delta_2 \cdot unem74 + \delta_3 \cdot age + \delta_4 \cdot educ +\\
++ \delta_5 \cdot black + \delta_6 \cdot hisp + \delta_7 \cdot married)
+\end{aligned}
+$$
+
+
+\normalsize Maximum Likelihood estimation result \footnotesize [(>>stata)](#PROBITtrain) 
+\small
+$$
+\begin{aligned}
+\underset{(se)}{\reallywidehat{\text{Pr}(train = 1 \mid \mathbf{x})}} = \Phi(\underset{(.487)}{-.424} + \underset{(.199)}{.053} \cdot unem74 - \underset{(.185)}{.247} \cdot unem75 + \underset{(.009)}{.008} \cdot age +\\
++ \underset{(.034)}{.031} \cdot educ
+- \underset{(.225)}{.207} \cdot black - \underset{(.308)}{.540} \cdot hisp + \underset{(.166)}{.097} \cdot married)
+\end{aligned}
+$$
+
+## (iii) Compute the likelihood ratio test for joint significance \quad of all variables. What do you conclude?
+
++ Null Hypothesis: $H_0: \delta_1 = \delta_2 = \ldots = \delta_7 = 0$ \footnotesize [(>>stata)](#PROBITtrain) \normalsize
+
++ Likelihood ratio test for joint significance of all variables
+
++ Idea: This test compares the value of the likelihood when all regressors are included and with that when no regressors are included.
+
++ The test statistic follows the chi-square distribution (denoted by $\chi^2$), with degrees of freedom equal to the
+number of regressors.
+
++ The likelihood ratio test for joint significance is $\chi^2 = 10.18$.
+
++ In a $\chi^2$ distribution this gives $p-value = .18$, which is very similar to that obtained for the LPM in part (ii).
+
+## (iv) Based on your answers to parts (ii) and (iii), does it appear that participation in job training can be treated as exogenous for explaining 1978 unemployment status? Explain. {#Ex1-iv}
+\footnotesize [(>>review)](#RA) \normalsize
+
++ *Training eligibility* was randomly assigned among the participants, so it is not surprising that `train` appears to be independent of other observed factors. 
+
+\vspace{0.8mm}
+
++ However, there can be a difference between *eligibility* and *actual participation*, as men can always refuse to participate if chosen (non-compliance issue).
+
+## (v) Run a simple regression of `unem78` on `train`. 
+
+Linear Probability Model (LPM)
+
+$$
+unem78_i = \beta_0 + \beta_1 \cdot train_i + u_i
+$$
+\normalsize
+OLS estimation result \footnotesize [(>>stata)](#LMPsimplereg) \normalsize
+
+$$
+\underset{(rb.se)}{\reallywidehat{unem78}} = \underset{(.030)}{.354} - \underset{(.043)}{.111} \cdot train 
+$$
+
+
+## (v) Run a simple regression of `unem78` on `train`. 
+
+Linear Probability Model (LPM)
+
+$$
+unem78_i = \beta_0 + \beta_1 \cdot train_i + u_i
+$$
+\footnotesize
+$$
+\color{gray}{\text{Pr}(unem78 = 1 \mid train) = E[unem78\mid train] = \beta_0 + \beta_1 \cdot train}
+$$
+\normalsize
+OLS estimation result \footnotesize [(>>stata)](#LMPsimplereg) \normalsize
+
+$$
+\underset{(rb.se)}{\reallywidehat{unem78}} = \underset{(.030)}{.354} - \underset{(.043)}{.111} \cdot train 
+$$
+\footnotesize
+$$
+\color{gray}{\reallywidehat{\text{Pr}(unem78 = 1\mid train)} = .354 - .111 \cdot train}
+$$
+
+## (v) What is the estimated effect of participating in the job training program on the probability of being unemployed in 1978? Is it statistically significant? {#Ex1-v}
+
+Estimated Linear Probability Model (LPM) \footnotesize [(>>stata)](#LMPsimplereg) \normalsize
+
+$$
+\reallywidehat{unem78} = .354 - .111 \cdot train 
+$$
+
++ Participating in the job training program lowers the estimated probability of being unemployed in 1978 by $.111$, or $11.1$ percentage points. This is a large effect.
+
++ The differences is statistically significant at almost the 1% level against at two-sided alternative.
+
++ Because training was randomly assigned, we have confidence that OLS is consistently estimating a *causal effect*, even though the R-squared from the regression is very small. There is much about being unemployed that we are not explaining, but we can be pretty confident that this job training program was beneficial. \footnotesize [(>>review)](#RA) \normalsize
+
+## (vi) Run a probit of `unem78` on `train`. 
+
+Probit Model (PROBIT)
+
+$$
+\text{Pr}(unem78 = 1 \mid train) = \Phi(\beta_0 + \beta_1 \cdot train)
+$$
+
+\normalsize Maximum Likelihood estimation result \footnotesize [(>>stata)](#PROBITsimplereg) 
+\small
+
+$$
+\underset{(se)}{\reallywidehat{\text{Pr}(unem78 = 1\mid train)}} = \Phi(\underset{(.080)}{-.375} - \underset{(.128)}{.321} \cdot train)
+$$
+
+## (vi) Does it make sense to compare the probit coefficient on train with the coefficient obtained from the linear model in part (v)?
+
++ It does not make sense to compare the coefficient on train for the probit ($-.321$) with the LPM estimate ($-.111$). The probabilities have different functional forms. 
+
++ However, note that the probit and LPM t-statistics are essentially the same (although the LPM standard errors should be made robust to heteroskedasticity).
+
+## (vii) Find the fitted probabilities from parts (v) and (vi). Explain why they are identical. 
+
+Estimated Linear Probability Model (LPM)
+
+$$
+\reallywidehat{unem78} = .354 - .111 \cdot train 
+$$
+
+$\Rightarrow$ Predicted probabilities of  being unemployed in 1978 \footnotesize [(>>stata)](#LMPsimplereg_predict) \normalsize
+
+  + when $train = 0$ is: $\reallywidehat{unem78}(train = 0) = \mathbf{.354}$
+  + when $train = 1$ is: $\reallywidehat{unem78}(train = 0) = .354 - .111 = \mathbf{.243}$
+
+
+## (vii) Find the fitted probabilities from parts (v) and (vi). Explain why they are identical. 
+
+Estimated Probit Model (PROBIT)
+
+$$
+\reallywidehat{\text{Pr}(unem78 =1\mid train)} = \Phi(-.375 - .321 \cdot train)
+$$
+
+$\Rightarrow$ Predicted probabilities of  being unemployed in 1978 \footnotesize [(>>stata)](#PROBITsimplereg_predict) \small
+
+  + when $train = 0$ is: $\reallywidehat{\text{Pr}(unem78 = 1\mid train = 0)} = \Phi(-.375) = \mathbf{.354}$
+  + when $train = 1$ is: $\reallywidehat{\text{Pr}(unem78 = 1\mid train = 1)} = \Phi(-.375 - .321) = \mathbf{.243}$
+
+  
+## (vii) Which approach would you use to measure the effect and statistical significance of the job training program?
+
++ The main reason to keep using LPM as a first step in modeling, it’s because the coefficients are easy to interpret.
+
++ Other than interpretation of coefficients or a first pass to modeling, there are NO GOOD REASONS TO USE THE LPM model.
+
+## (viii) Add all the variables from part (ii) as additional controls to the models from parts (v) and (vi). 
+
+Linear Probability Model (LPM)
+\small
+$$
+\begin{aligned}
+unem78_i = \beta_0 + \beta_1 \cdot train_i + \beta_2 \cdot unem74_i + \beta_3 \cdot unem75_i + \beta_4 \cdot age_i + \beta_5 \cdot educ_i +\\
++ \beta_6 \cdot black_i + \beta_7 \cdot hisp_i + \beta_8 \cdot married_i + u_i
+\end{aligned}
+$$
+
+\normalsize OLS estimation result \footnotesize [(>>stata)](#LMPwithcontrols) \small
+$$
+\begin{aligned}
+\reallywidehat{unem78} = .163 -.112 \cdot train + .039 \cdot unem74 + .016 \cdot unem75 + .000 \cdot age +\\
++ .000 \cdot educ + .189 \cdot black -.038 \cdot hisp  -.025 \cdot married 
+\end{aligned}
+$$
+
+## (viii) Add all the variables from part (ii) as additional controls to the models from parts (v) and (vi). 
+
+Probit Model (PROBIT)
+\small
+
+$$
+\begin{aligned}
+\text{Pr}(unem78 = 1 \mid \mathbf{x}) = \Phi(\beta_0 + \beta_1 \cdot train \beta_2 \cdot unem74 + \beta_3 \cdot unem75 + \beta_4 \cdot age +\\
+\beta_5 \cdot educ + \beta_6 \cdot black + \beta_7 \cdot hisp + \beta_8 \cdot married)
+\end{aligned}
+$$
+\normalsize Maximum Likelihood estimation result \footnotesize [(>>stata)](#PROBITwithcontrols) \small
+$$
+\begin{aligned}
+\reallywidehat{\text{Pr}(unem78 = 1 \mid \mathbf{x})} = \Phi(-1.010 - .337 \cdot train .106 \cdot unem74 + .064 \cdot unem75 +\\
++ .001 \cdot age -.002 \cdot educ + .634 \cdot black -.165 \cdot hisp  -.078 \cdot married)
+\end{aligned}
+$$
+
+
+## [SN] STATA command for Predicted probabilities
+
+\normalsize Linear Probability Model
+\small
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+* regress yvar xvar wvar1 wvar2 wvark, robust
+* predict newvar, xb
+// add option 'xb' to calculate linear index
+```
+
+\normalsize Probit Model
+\small
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+* probit yvar xvar wvar1 wvar2 wvark, robust
+* predict newvar, p
+// add option 'p' to calculate predicted probabilities
+```
+
+
+## (viii) Are the fitted probabilities now identical? What is the correlation between them?
+
+\normalsize Linear Probability Model
+\footnotesize
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+* regress yvar xvar wvar1 wvar2 wvark, robust
+* predict newvar, xb // add 'xb' to calculate linear index
+```
+
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/pictures/LMPwithcontrols_predict.png")
+```
+
+\normalsize Probit Model
+\footnotesize
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+* probit yvar xvar wvar1 wvar2 wvark
+* predict newvar, p // add 'p' to calculate predicted probabilities
+```
+
+```{r, echo=FALSE, out.width='100%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/pictures/PROBITwithcontrols_predict.png")
+```
+
+## (viii) Are the fitted probabilities now identical? What is the correlation between them?
+
+\footnotesize
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+* corr var1 var2 // return correlation coefficient
+```
+
+```{r, echo=FALSE, out.width='100%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/pictures/corr2predictedvalues.png")
+```
+
+\small
+We observe a still very high correlation of $.9932$. This is due to the fact that the explanatory variables other than `train` are insignificant (with the exception of `black`). Therefore, the predicted probabilities are still primarily determined by `train`, and hence they are highly correlated.
+
+## [SN] STATA command for Average Partial Effects
+\small
+
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+* probit yvar ib0.binary_varname c.continuous_varname, robust
+// use 'c.' to explicitly indicate continuous variables
+// use 'ib0.' to indicate binary variables, with base value 0
+```
+
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+* probit yvar ib0.binary_var c.continuous_var, robust
+* margins, dydx(varname_of_interest)
+// calculate APE for varname_of_interest among regressors.
+```
+
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+* probit yvar ib0.binary_varname c.continuous_varname, robust
+* margins, dydx(*)
+// use (*) to calculate APE for all regressors.
+```
+
+## [SN] Probit regression - explicitly indicates types of variables
+\footnotesize
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+* probit yvar ib0.binary_varname c.continuous_varname, robust
+// use 'c.' to explicitly indicate continuous variables
+// use 'ib0.' to indicate binary variables, with base value 0
+```
+
+```{r, echo=FALSE, out.width='100%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/pictures/PROBITfullform.png")
+```
+
+## (ix) Using the model from part (viii), estimate the average partial effect of train on the 1978 unemployment probability. Compare with the OLS estimate from part (viii). {#Ex1-ix}
+
+As `train` is a binary variable \footnotesize [(>>review)](#APEcalculation) \small
+
+$$
+\begin{aligned}
+APE_{train} &= \frac{1}{n} \sum_{i=1}^{N} \Phi (\hat{\beta}_0 + train \hat\beta_{train} + \\
+&\hspace{2mm}+  \text{sum of other regressors multiplied by their coefficients}) \\
+&\hspace{2mm}- \Phi (\hat{\beta}_0 +  \text{sum of other regressors multiplied by their coefficients} ) ]
+\end{aligned}
+$$
+
+## {-}
+\small
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+* probit yvar ib0.binary_var c.continuous_var
+* margins, dydx(varname_of_interest)
+// calculate APE for varname_of_interest among regressors.
+```
+
+```{r, echo=FALSE, out.width='100%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/pictures/PROBITtrainAPE.png")
+```
+
+## (ix) Using the model from part (viii), estimate the average partial effect of train on the 1978 unemployment probability. Compare with the OLS estimate from part (viii).
+
++ With the variables in part (ii) appearing in the probit, the estimated APE is about $-.112$.
+
+\vspace{2mm}
+
++ Interestingly, rounded to three decimal places, this is the same as the coefficient on `train` in
+the linear regression. In other words, the linear probability model and probit give virtually the
+same estimated APEs.
+
+## (x) Estimate the average partial effects of the remaining regressors in (ix) on the 1978 unemployment probability. Compare with the OLS estimate from part (viii).
+
+## {-}
+
+\small
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+* probit yvar ib0.binary_varname c.continuous_varname
+* margins, dydx(*)
+// use (*) to calculate APE for all regressors.
+```
+
+```{r, echo=FALSE, out.width='100%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/pictures/PROBITallAPE.png")
+```
+
+## (x) Estimate the average partial effects of the remaining regressors in (ix) on the 1978 unemployment probability. Compare with the OLS estimate from part (viii).
+
++ Other than `train`, only being black has a statistically significant APE(AME), at
+increases on average the probability of being unemployed in 1978 by about $18.8$ percentage
+points. We expect this result, as the coefficient of `black` was statistically significant in the
+probit regression. Almost always (i.e., with very few exceptions) a statistically significant
+probit coefficient will imply a statistically significant APE, and vice versa.
+
+\vspace{2mm}
+
++ The result for `black` is very similar to the APE from the OLS regression, which is equal to the
+estimated coefficient. The remaining variables have statistically insignificant APES, with
+broadly similar patterns as the estimated OLS coefficients.
+
+# Exercise 2: based on Wooldridge, Exercise C17.14
+
+## Picture the Scenario
+
++ **Objective:** test whether *participation in the job training program*
+had an effect on *unemployment probabilities* and *earnings* in 1978.
+
++ **Dataset:** \texttt{happiness.dta}
+  + contains independently pooled cross sections for the even years from 1994 through 2006, obtained from the General Social Survey. 
+  
++ **Key variables:**
+  + `vhappy`: a measure of "happiness", $= 1$ if the person reports being "very happy" and $= 0$ otherwise.
+  + `occattend`: $= 1$ if attend religious services between several times a year and 2-3 times per month and $= 0$ otherwise.
+  + `regattend`: $= 1$ if attend religious services more often that 2-3 times per month.
+  + a full set of year dummies. 
+
+## Questions
+
+(i) Estimate a probit probability model relating `vhappy` to `occattend` and `regattend`. Find the average partial effects for `occattend` and `regattend`. How do these compare with those from estimating a linear probability model?
+
+(ii) Include `highinc`, `unem10`, `educ`, and `teens` to the probit estimation in part (i). Is the APE of regattend affected much? What about its statistical significance?
+
+(iii) Discuss the APEs and statistical significance of the four new variables in part (ii). Do the estimates make sense?
+
+(iv) Controlling for the factors in part (ii), do there appear to be differences in happiness by
+gender or race? Justify your answer.
+
+
+## (i) Estimate a probit probability model relating `vhappy` to `occattend` and `regattend`. 
+
+```{r, echo=FALSE, out.width='80%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/pictures/ex2-PROBIT.png")
+```
+
+## (i) Find the average partial effects for `occattend` and `regattend`. 
+
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/pictures/ex2-PROBIT-APE.png")
+```
+
+## (i) How do these compare with those from estimating a \quad linear probability model?
+
+```{r, echo=FALSE, out.width='80%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/pictures/ex2-LPM.png")
+```
+
+## (ii) Include `highinc`, `unem10`, `educ`, and `teens` to the \quad probit estimation in part (i).
+
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/pictures/ex2-PROBIT-APE-add4ctrls.png")
+```
+
+
+## (ii) Is the APE of regattend affected much? What about its statistical significance?
+
+We observe that the APE for regattend is about $.0950 (t = 6.44)$. So, the APE estimate and its
+t statistic are somewhat lower when including the additional regressors, but it is still pretty
+large and very statistically significant. 
+
+A person who reports attending a religious service regularly has, on average, almost a $.10$ higher probability of being “very happy.”
+
+## (iii) Discuss the APEs and statistical significance of the four new variables in part (ii). 
+
+The signs of the APEs of `highinc`, `unem10`, `educ`, and `teens` seem reasonable. 
+
++ Being in the highest income group (which, unfortunately, was not indexed to inflation) leads to
+about a $.10$ higher probability of being very happy, on average. 
+
++ Being unemployed in the past 10 years lowers the probability of being very happy by slightly less, about $.09$. Both are very statistically significant. 
+
++ Education has a slight positive effect: each year of education increase the probability of being very happy by about $.004$. 
+
++ Finally, having teenagers reduces the probability of being very happy. Each teenager is estimated to reduce the probability by about $.017$, although it is only marginally statistically significant.
+
+## (iv) Controlling for the factors in part (ii), do there appear \quad to be differences in happiness by gender or race? 
+
+```{r, echo=FALSE, out.width='80%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/pictures/ex2-PROBIT-APE-add6ctrls.png")
+```
+
+\footnotesize
+In the probit regression, black is statistically significant ($t = -3.71$) while female is not ($t =.17$). The APE for black is about $-.052$, so that, other things in the model fixed, black people
+are, on average, $.052$ less likely to be very happy.
+
+## (iv) Adding an interaction between `black` and `female` 
+
+```{r, echo=FALSE, out.width='100%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/pictures/ex2-PROBIT-APE-add7ctrls.png")
+```
+
+## (iv) Adding an interaction between `black` and `female` 
+
+We note from the probit results that the interaction term has a statistically insignificant t
+statistic, and the same is true for the `black` and `female` binary variables. This is likely due to
+the collinearity between the variables and their interaction. When we test the three dummies
+jointly we get
+
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/pictures/ex2-PROBIT-APE-add7ctrls-test.png")
+```
+
+Hence, the three dummy variables are jointly very significant. It appears that a model with
+just `black` fits these data best.
+
+# BRIEF REVIEW
+
+## Causal Graph {#RA}
+
+### Random Assignment
+
+```{r fig-RCTC, echo=FALSE, out.width='40%', out.height="54%", fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics(c("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/pictures/RCTCsetting1.png",
+"/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/pictures/RCTCsetting2.png"))
+```
+\footnotesize[(>>back1iv)](#Ex1-iv) \normalsize \footnotesize[(>>back1v)](#Ex1-v) \normalsize
+
+## Average Partial Affect (APE) {#APEcalculation}
+
+For a continuous variable $cvar$
+$$
+\begin{aligned}
+APE_{cvar} &= \frac{1}{n} \sum_{i=1}^{N} \phi [(\hat{\beta}_0 + cvar \hat\beta_{cvar} + \\
+&+  \text{sum of other regressors multiplied by their coefficients})\cdot \hat\beta_{cvar} ]
+\end{aligned}
+$$
+
+For a binary variable $bvar$
+$$
+\begin{aligned}
+APE_{bvar} &= \frac{1}{n} \sum_{i=1}^{N} \Phi (\hat{\beta}_0 + bvar \hat\beta_{bvar} + \\
+&\hspace{2mm}+  \text{sum of other regressors multiplied by their coefficients}) \\
+&\hspace{2mm}- \Phi (\hat{\beta}_0 +  \text{sum of other regressors multiplied by their coefficients} ) ]
+\end{aligned}
+$$
+
+# STATA CODES \& RESULTS
+
+## Exercise 1(i-I) {#numtrain}
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/pictures/numtrain1.png")
+```
+
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/pictures/numtrain2.png")
+```
+
+## Exercise 1(i-II) {#mosinex_max}
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/pictures/mosinex_max1.png")
+```
+
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/pictures/mosinex_max2.png")
+```
+
+## Exercise 1(ii) {#LMPtrain_norobust}
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/pictures/LMPtrain_norobust.png")
+```
+
+## Exercise 1(ii) {#LMPtrain}
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/pictures/LMPtrain.png")
+```
+
+## Exercise 1(iii) {#PROBITtrain}
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/pictures/PROBITtrain.png")
+```
+
+## Exercise 1(v) {#LMPsimplereg}
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/pictures/LMPsimplereg.png")
+```
+
+## Exercise 1(vi) {#PROBITsimplereg}
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/pictures/PROBITsimplereg.png")
+```
+
+## Exercise 1(vii-I) {#LMPsimplereg_predict}
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/pictures/LMPsimplereg_predict.png")
+```
+
+## Exercise 1(vii-II) {#PROBITsimplereg_predict}
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/pictures/PROBITsimplereg_predict.png")
+```
+
+## Exercise 1(viii-I) {#LMPwithcontrols}
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/pictures/LMPwithcontrols.png")
+```
+
+## Exercise 1(viii-II) {#PROBITwithcontrols}
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/pictures/PROBITwithcontrols.png")
+```
+
+## Exercise 1(viii-III) {#Modelswithcontrols_predict}
+\footnotesize
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+* regress yvar xvar wvar1 wvar2 wvark, robust
+* predict newvar, xb // add 'xb' to calculate linear index
+```
+
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/pictures/LMPwithcontrols_predict.png")
+```
+
+\footnotesize
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+* probit yvar xvar wvar1 wvar2 wvark
+* predict newvar, p // add 'p' to calculate predicted probabilities
+```
+
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/pictures/PROBITwithcontrols_predict.png")
+```
+
+\footnotesize
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+* corr var1 var2 // return correlation coefficient
+```
+
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/pictures/corr2predictedvalues.png")
+```
+
+## Exercise 1(ix) {#PROBITtrainAPE}
+\footnotesize
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+* probit yvar ib0.binary_var c.continuous_var
+* margins, dydx(varname_of_interest)
+// calculate APE for varname_of_interest among regressors.
+```
+
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/pictures/PROBITtrainAPE.png")
+```
+
+## Exercise 1(x) {#PROBITallAPE}
+\footnotesize
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+* probit yvar ib0.binary_varname c.continuous_varname
+* margins, dydx(*)
+// use (*) to calculate APE for all regressors.
+```
+
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/pictures/PROBITallAPE.png")
+```
+
+## Exercise 2(i-I){#ex2-LPM}
+
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/pictures/ex2-LPM.png")
+```
+
+## Exercise 2(i-II){#ex2-PROBIT.png}
+
+```{r, echo=FALSE, out.width='80%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/pictures/ex2-PROBIT.png")
+```
+
+## Exercise 2(i-III){#ex2-PROBIT-APE}
+
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/pictures/ex2-PROBIT-APE.png")
+```
+
+
+## Exercise 2(ii-I) {#highinc}
+
+```{r, echo=FALSE, out.width='46%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics(c("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/pictures/ex2-income-tab.png",
+"/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/pictures/ex2-income-tabnolab.png"))
+```
+
+```{r, echo=FALSE, out.width='80%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/pictures/ex2-incomenew.png")
+```
+
+## Exercise 2(ii-II) {#ex2-PROBIT-APE-add4ctrls}
+
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/pictures/ex2-PROBIT-APE-add4ctrls.png")
+```
+
+
+## Exercise 2(iv-I) {#ex2-PROBIT-APE-add6ctrls}
+
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/pictures/ex2-PROBIT-APE-add6ctrls.png")
+```
+
+## Exercise 2(iv-II) {#ex2-PROBIT-APE-add7ctrls}
+
+```{r, echo=FALSE, out.width='80%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/pictures/ex2-PROBIT-APE-add7ctrls.png")
+```
+
+\footnotesize
+Writing the interaction term as `ib0.black#ib0.female` is important if we want to calculate the APEs, as Stata needs to know all the terms in the specification in which any particular variable shows up, so as to put it equal to 0 and 1 (when binary), or differentiate with respect to it (when continuous) correctly. 
+
+## Exercise 2(iv-III) {#ex2-PROBIT-APE-add7ctrls-test}
+
+```{r, echo=FALSE, out.width='100%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/pictures/ex2-PROBIT-APE-add7ctrls-test.png")
+```
