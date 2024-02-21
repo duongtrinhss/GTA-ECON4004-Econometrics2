@@ -8,7 +8,7 @@ output:
     keep_tex: yes
     slide_level: 2
     includes:
-      in_header: preamble_reallywidehat.tex
+      in_header: preamble_MyText.tex
   slidy_presentation: default
   ioslides_presentation: default
   pdf_document: default
@@ -78,14 +78,34 @@ library(knitr)
 knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 2/pictures/QRcodeAtd_LB02.png")
 ```
 
+## Plan for LAB 3
+
++ Exercise 1: based on Wooldridge, Exercise C17.8
++ Exercise 2: based on Wooldridge, Exercise C17.14
+
+\vspace{3mm}
+
++ We will focus on *"Regression with Binary Dependent Variables"*
+  + Linear Probability Model (LPM)
+  + Probit Model (PROBIT)
+  
+<!-- + The main reason to keep using LPM as a first step in modeling, it’s because the coefficients are easy to interpret. -->
+
+<!-- + Other than interpretation of coefficients or a first pass to modeling, there are NO GOOD REASONS TO USE THE LPM model. -->
+
+
 # Exercise 1: based on Wooldridge, Exercise C17.8
 
 ## Picture the Scenario
 
 + **Objective:** Examine the effect of *participation in the job training program* on *unemployment probabilities* and *earnings* in 1978.
 
+\vspace{0.8mm}
+
 + **Dataset:** \texttt{JTRAIN2.dta}
   + data on a job training experiment for a group of men. Men could enter the program starting in January 1976 through about mid-1977. The program ended in December 1977. 
+
+\vspace{0.8mm}
 
 + **Key variables:**
   + `train`: job training indicator.
@@ -127,7 +147,13 @@ How does the estimate compare with the OLS estimate from part (viii)?
 (x) Estimate the *average partial effects* of the remaining regressors in (ix) on the 1978 unemployment probability.  
 How does the estimate compare with the OLS estimate from part (viii)?
 
-## (i) How many men in the sample participated in the job training program? What was the highest number of months a man actually participated in the program?
+## (i) How many men in the sample participated in the job training program? What was the highest number of months a man actually participated in the program? {#1-i}
+
++ 185 men in the sample participated in the job training program. \footnotesize [(>>stata)](#numtrain) \normalsize
+
+\vspace{0.8mm}
+
++ The highest number of months a man actually participated in the program is 24. \footnotesize [(>>stata)](#monsinexmax) 
     
 ## (ii) Run a linear regression of `train` on `unem75`, `unem74`, `age`, `educ`, `black`, `hisp`, and `married`. 
 
@@ -161,10 +187,9 @@ $$
 
 + Null Hypothesis: $H_0: \delta_1 = \delta_2 = \ldots = \delta_7 = 0$ \footnotesize [(>>stata)](#LMPtrain_norobust) \normalsize
 
-+ The F statistic for joint significance of the explanatory variables is $F(7,437) = 1.43$ with $p-value = .19$. Therefore, they are jointly insignificant at even the 15% level. 
++ The F statistic for joint significance of the explanatory variables is $F(7,437) = 1.43$ with $p-value = .19$. Therefore, they are jointly insignificant at even the $15\%$ level. 
 
-+ Note that, even though we have estimated a linear probability model, the null hypothesis we are testing is that
-all slope coefficients are zero, and so there is no heteroskedasticity under H0. This means that the usual F-statistic is asymptotically valid.
++ Note that, even though we have estimated a linear probability model, the null hypothesis we are testing is that all slope coefficients are zero, and so there is no heteroskedasticity under $H_0$. This means that the usual F-statistic is asymptotically valid.
 
 ## (iii) Estimate a probit version of linear model in part (ii). 
 
@@ -184,14 +209,15 @@ $$
 * probit depvar indepvars [, options]
 ```
 
-+ For the LPM, standard errors should be made robust to heteroskedasticity
-  + The estimates of the marginal effects in linear regression are consistent under heteroskedasticity and using robust standard errors yields correct inference.
++ For LPM, standard errors should be made robust to heteroskedasticity in order to yield more reliable results.
+  <!-- + The estimates of the marginal effects in linear regression are consistent under heteroskedasticity and using robust standard errors yields correct inference. -->
   + STATA: add option `robust` or `vce(robust)` to return heteroskedasticity-robust standard errors.
-  
-+ For PROBIT, there is no advantage in using robust standard errors. [(reference)](https://blog.stata.com/2016/08/30/two-faces-of-misspecification-in-maximum-likelihood-heteroskedasticity-and-robust-standard-errors/#disqus_thread)
-  + They do not solve the problems associated with heteroskedasticity for a nonlinear model estimated using maximum likelihood;  do not help us obtain correct inference.
-  + They has a different interpretation.
-  + STATA: option `robust` or `vce(robust)` is unnecessary, 
+
+\vspace{0.8mm}
+
++ For PROBIT, there is no such advantage in using robust standard errors. [(reference)](https://blog.stata.com/2016/08/30/two-faces-of-misspecification-in-maximum-likelihood-heteroskedasticity-and-robust-standard-errors/#disqus_thread)
+  + They do not solve the problems associated with heteroskedasticity for a nonlinear model estimated using maximum likelihood, and  have a different interpretation.
+  + STATA: option `robust` or `vce(robust)` is unnecessary. 
 
 <!-- + Terminology: Robust sandwich form for the variance-covariance matrix of the estimator (VCE)/A robust estimate of the variance–covariance matrix will not help us obtain correct inference. -->
 
@@ -237,12 +263,11 @@ $$
 
 + Idea: This test compares the value of the likelihood when all regressors are included and with that when no regressors are included.
 
-+ The test statistic follows the chi-square distribution (denoted by $\chi^2$), with degrees of freedom equal to the
-number of regressors.
++ The test statistic follows the chi-square distribution (denoted by $\chi^2$), with degrees of freedom equal to the number of regressors.
 
-+ The likelihood ratio test for joint significance is $\chi^2 = 10.18$.
++ The likelihood ratio test for joint significance is $10.18$.
 
-+ In a $\chi^2$ distribution this gives $p-value = .18$, which is very similar to that obtained for the LPM in part (ii).
++ In a $\chi^2_7$ distribution this gives $p-value = .18$, which is very similar to that obtained for the LPM in part (ii).
 
 ## (iv) Based on your answers to parts (ii) and (iii), does it appear that participation in job training can be treated as exogenous for explaining 1978 unemployment status? Explain. {#Ex1-iv}
 \footnotesize [(>>review)](#RA) \normalsize
@@ -278,6 +303,9 @@ $$
 \footnotesize
 $$
 \color{gray}{\text{Pr}(unem78 = 1 \mid train) = E[unem78\mid train] = \beta_0 + \beta_1 \cdot train}
+$$
+$$
+\color{gray}{\longrightarrow \text{that's why we call "probabilily of..."}}
 $$
 \normalsize
 OLS estimation result \footnotesize [(>>stata)](#LMPsimplereg) \normalsize
@@ -319,9 +347,28 @@ $$
 \underset{(se)}{\reallywidehat{\text{Pr}(unem78 = 1\mid train)}} = \Phi(\underset{(.080)}{-.375} - \underset{(.128)}{.321} \cdot train)
 $$
 
+## (vi) Run a probit of `unem78` on `train`. 
+
+Probit Model (PROBIT)
+
+$$
+\text{Pr}(unem78 = 1 \mid train) = \color{red}{\Phi(}\color{black}{\beta_0 + \beta_1 \cdot train}\color{red}{)}
+$$
+\footnotesize
+$$
+\color{gray}{\Phi(\cdot) \text{ is CDF of the standard normal distribution that helps restrict returned values to [0,1].}}
+$$
+
+\normalsize Maximum Likelihood estimation result \footnotesize [(>>stata)](#PROBITsimplereg) 
+\small
+
+$$
+\underset{(se)}{\reallywidehat{\text{Pr}(unem78 = 1\mid train)}} = \color{red}{\Phi(}\color{black}{\underset{(.080)}{-.375} - \underset{(.128)}{.321} \cdot train}\color{red}{)}
+$$
+
 ## (vi) Does it make sense to compare the probit coefficient on train with the coefficient obtained from the linear model in part (v)?
 
-+ It does not make sense to compare the coefficient on train for the probit ($-.321$) with the LPM estimate ($-.111$). The probabilities have different functional forms. 
++ It does not make sense to compare the coefficient on train for the probit ($-.321$) with the LPM estimate ($-.111$). The probabilities have **different functional forms**. 
 
 + However, note that the probit and LPM t-statistics are essentially the same (although the LPM standard errors should be made robust to heteroskedasticity).
 
@@ -332,11 +379,15 @@ Estimated Linear Probability Model (LPM)
 $$
 \reallywidehat{unem78} = .354 - .111 \cdot train 
 $$
-
+\footnotesize
+$$
+\color{gray}{\reallywidehat{\text{Pr}(unem78 = 1\mid train)} = .354 - .111 \cdot train}
+$$
+\normalsize
 $\Rightarrow$ Predicted probabilities of  being unemployed in 1978 \footnotesize [(>>stata)](#LMPsimplereg_predict) \normalsize
 
   + when $train = 0$ is: $\reallywidehat{unem78}(train = 0) = \mathbf{.354}$
-  + when $train = 1$ is: $\reallywidehat{unem78}(train = 0) = .354 - .111 = \mathbf{.243}$
+  + when $train = 1$ is: $\reallywidehat{unem78}(train = 1) = .354 - .111 = \mathbf{.243}$
 
 
 ## (vii) Find the fitted probabilities from parts (v) and (vi). Explain why they are identical. 
@@ -344,7 +395,7 @@ $\Rightarrow$ Predicted probabilities of  being unemployed in 1978 \footnotesize
 Estimated Probit Model (PROBIT)
 
 $$
-\reallywidehat{\text{Pr}(unem78 =1\mid train)} = \Phi(-.375 - .321 \cdot train)
+\underset{(se)}{\reallywidehat{\text{Pr}(unem78 = 1\mid train)}} = \color{red}{\Phi(}\color{black}{\underset{(.080)}{-.375} - \underset{(.128)}{.321} \cdot train}\color{red}{)}
 $$
 
 $\Rightarrow$ Predicted probabilities of  being unemployed in 1978 \footnotesize [(>>stata)](#PROBITsimplereg_predict) \small
@@ -353,11 +404,10 @@ $\Rightarrow$ Predicted probabilities of  being unemployed in 1978 \footnotesize
   + when $train = 1$ is: $\reallywidehat{\text{Pr}(unem78 = 1\mid train = 1)} = \Phi(-.375 - .321) = \mathbf{.243}$
 
   
-## (vii) Which approach would you use to measure the effect and statistical significance of the job training program?
+## (vii) Find the fitted probabilities from parts (v) and (vi). Explain why they are identical.
 
-+ The main reason to keep using LPM as a first step in modeling, it’s because the coefficients are easy to interpret.
+Hence, fitted values are identical in both models. This has to be the case, because any method simply delivers the cell frequencies as the estimated probabilities (here, we have only a single binary regressor). The LPM estimates are easier to interpret because they do not involve the transformation by $\Phi(\cdot)$, but it does not matter which is used provided the probability differences are calculated.
 
-+ Other than interpretation of coefficients or a first pass to modeling, there are NO GOOD REASONS TO USE THE LPM model.
 
 ## (viii) Add all the variables from part (ii) as additional controls to the models from parts (v) and (vi). 
 
@@ -369,12 +419,18 @@ unem78_i = \beta_0 + \beta_1 \cdot train_i + \beta_2 \cdot unem74_i + \beta_3 \c
 + \beta_6 \cdot black_i + \beta_7 \cdot hisp_i + \beta_8 \cdot married_i + u_i
 \end{aligned}
 $$
-
 \normalsize OLS estimation result \footnotesize [(>>stata)](#LMPwithcontrols) \small
 $$
 \begin{aligned}
 \reallywidehat{unem78} = .163 -.112 \cdot train + .039 \cdot unem74 + .016 \cdot unem75 + .000 \cdot age +\\
 + .000 \cdot educ + .189 \cdot black -.038 \cdot hisp  -.025 \cdot married 
+\end{aligned}
+$$
+\footnotesize
+$$
+\begin{aligned}
+\color{gray}{\reallywidehat{\text{Pr}(unem78 = 1 \mid \mathbf{x})} = .163 -.112 \cdot train + .039 \cdot unem74 + .016 \cdot unem75 + .000 \cdot age +}\\
+\color{gray}{+ .000 \cdot educ + .189 \cdot black -.038 \cdot hisp  -.025 \cdot married}
 \end{aligned}
 $$
 
@@ -385,15 +441,15 @@ Probit Model (PROBIT)
 
 $$
 \begin{aligned}
-\text{Pr}(unem78 = 1 \mid \mathbf{x}) = \Phi(\beta_0 + \beta_1 \cdot train \beta_2 \cdot unem74 + \beta_3 \cdot unem75 + \beta_4 \cdot age +\\
-\beta_5 \cdot educ + \beta_6 \cdot black + \beta_7 \cdot hisp + \beta_8 \cdot married)
+\text{Pr}(unem78 = 1 \mid \mathbf{x}) = \color{red}{\Phi(}\color{black}{\beta_0 + \beta_1 \cdot train \beta_2 \cdot unem74 + \beta_3 \cdot unem75 + \beta_4 \cdot age +}\\
+\color{black}{\beta_5 \cdot educ + \beta_6 \cdot black + \beta_7 \cdot hisp + \beta_8 \cdot married}\color{red}{)}
 \end{aligned}
 $$
 \normalsize Maximum Likelihood estimation result \footnotesize [(>>stata)](#PROBITwithcontrols) \small
 $$
 \begin{aligned}
-\reallywidehat{\text{Pr}(unem78 = 1 \mid \mathbf{x})} = \Phi(-1.010 - .337 \cdot train .106 \cdot unem74 + .064 \cdot unem75 +\\
-+ .001 \cdot age -.002 \cdot educ + .634 \cdot black -.165 \cdot hisp  -.078 \cdot married)
+\reallywidehat{\text{Pr}(unem78 = 1 \mid \mathbf{x})} =\color{red}{\Phi(}\color{black}{-1.010 - .337 \cdot train .106 \cdot unem74 + .064 \cdot unem75 +}\\
+\color{black}{+ .001 \cdot age -.002 \cdot educ + .634 \cdot black -.165 \cdot hisp  -.078 \cdot married}\color{red}{)}
 \end{aligned}
 $$
 
@@ -411,7 +467,7 @@ $$
 \normalsize Probit Model
 \small
 ```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
-* probit yvar xvar wvar1 wvar2 wvark, robust
+* probit yvar xvar wvar1 wvar2 wvark
 * predict newvar, p
 // add option 'p' to calculate predicted probabilities
 ```
@@ -444,37 +500,43 @@ knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Eco
 ```
 
 ## (viii) Are the fitted probabilities now identical? What is the correlation between them?
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/pictures/summpredictedvalues.png")
+```
+
 
 \footnotesize
 ```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
 * corr var1 var2 // return correlation coefficient
 ```
 
-```{r, echo=FALSE, out.width='100%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='center', fig.pos = 'H'}
 library(knitr)
 knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/pictures/corr2predictedvalues.png")
 ```
 
-\small
-We observe a still very high correlation of $.9932$. This is due to the fact that the explanatory variables other than `train` are insignificant (with the exception of `black`). Therefore, the predicted probabilities are still primarily determined by `train`, and hence they are highly correlated.
+\MyText{\footnotesize The fitted values are no longer going to be identical because the model is not
+saturated. That is, the explanatory variables are not an exhaustive, mutually exclusive set of
+dummy variables. Lower extreme values of predicted probabilities from LMP are even negative, while all values from probit fall in $[0,1]$. However, we observe a still very high correlation of $.9932$.}
 
 ## [SN] STATA command for Average Partial Effects
 \small
 
 ```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
-* probit yvar ib0.binary_varname c.continuous_varname, robust
+* probit yvar ib0.binary_varname c.continuous_varname
 // use 'c.' to explicitly indicate continuous variables
 // use 'ib0.' to indicate binary variables, with base value 0
 ```
 
 ```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
-* probit yvar ib0.binary_var c.continuous_var, robust
+* probit yvar ib0.binary_var c.continuous_var
 * margins, dydx(varname_of_interest)
 // calculate APE for varname_of_interest among regressors.
 ```
 
 ```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
-* probit yvar ib0.binary_varname c.continuous_varname, robust
+* probit yvar ib0.binary_varname c.continuous_varname
 * margins, dydx(*)
 // use (*) to calculate APE for all regressors.
 ```
@@ -482,7 +544,7 @@ We observe a still very high correlation of $.9932$. This is due to the fact tha
 ## [SN] Probit regression - explicitly indicates types of variables
 \footnotesize
 ```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
-* probit yvar ib0.binary_varname c.continuous_varname, robust
+* probit yvar ib0.binary_varname c.continuous_varname
 // use 'c.' to explicitly indicate continuous variables
 // use 'ib0.' to indicate binary variables, with base value 0
 ```
@@ -561,8 +623,7 @@ broadly similar patterns as the estimated OLS coefficients.
 
 ## Picture the Scenario
 
-+ **Objective:** test whether *participation in the job training program*
-had an effect on *unemployment probabilities* and *earnings* in 1978.
++ **Objective:** Determinants of Happiness!
 
 + **Dataset:** \texttt{happiness.dta}
   + contains independently pooled cross sections for the even years from 1994 through 2006, obtained from the General Social Survey. 
@@ -616,7 +677,7 @@ knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Eco
 
 ## (ii) Is the APE of regattend affected much? What about its statistical significance?
 
-We observe that the APE for regattend is about $.0950 (t = 6.44)$. So, the APE estimate and its
+We observe that the APE for regattend is about $.0950 (t = 6.43)$. So, the APE estimate and its
 t statistic are somewhat lower when including the additional regressors, but it is still pretty
 large and very statistically significant. 
 
@@ -637,14 +698,16 @@ about a $.10$ higher probability of being very happy, on average.
 
 ## (iv) Controlling for the factors in part (ii), do there appear \quad to be differences in happiness by gender or race? 
 
-```{r, echo=FALSE, out.width='80%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='center', fig.pos = 'H'}
 library(knitr)
 knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/pictures/ex2-PROBIT-APE-add6ctrls.png")
 ```
 
-\footnotesize
-In the probit regression, black is statistically significant ($t = -3.71$) while female is not ($t =.17$). The APE for black is about $-.052$, so that, other things in the model fixed, black people
-are, on average, $.052$ less likely to be very happy.
+<!-- \footnotesize -->
+<!-- In the probit regression, black is statistically significant ($t = -3.71$) while female is not ($t =.17$). The APE for black is about $-.052$, so that, other things in the model fixed, black people -->
+<!-- are, on average, $.052$ less likely to be very happy. -->
+
+\MyText{\footnotesize In the probit regression, black is statistically significant while female is not. The APE for black is about $-.052$, so that, other things in the model fixed, black people are, on average, $.052$ less likely to be very happy.}
 
 ## (iv) Adding an interaction between `black` and `female` 
 
@@ -713,6 +776,8 @@ library(knitr)
 knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/pictures/numtrain2.png")
 ```
 
+\footnotesize [(>>back1(i))](#1-i) \normalsize
+
 ## Exercise 1(i-II) {#mosinex_max}
 ```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='center', fig.pos = 'H'}
 library(knitr)
@@ -723,6 +788,8 @@ knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Eco
 library(knitr)
 knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/pictures/mosinex_max2.png")
 ```
+
+\footnotesize [(>>back1(i))](#1-i) \normalsize
 
 ## Exercise 1(ii) {#LMPtrain_norobust}
 ```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='center', fig.pos = 'H'}
