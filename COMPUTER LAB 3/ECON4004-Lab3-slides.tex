@@ -474,40 +474,7 @@ Probit Model (PROBIT) \small \[
 \end{Highlighting}
 \end{Shaded}
 
-\begin{itemize}
-\tightlist
-\item
-  For LPM, standard errors should be made robust to heteroskedasticity
-  in order to yield more reliable results.
-
-  \begin{itemize}
-  \tightlist
-  \item
-    STATA: add option \texttt{robust} or \texttt{vce(robust)} to return
-    heteroskedasticity-robust standard errors.
-  \end{itemize}
-\end{itemize}
-
-\vspace{0.8mm}
-
-\begin{itemize}
-\tightlist
-\item
-  For PROBIT, there is no such advantage in using robust standard
-  errors.
-  \href{https://blog.stata.com/2016/08/30/two-faces-of-misspecification-in-maximum-likelihood-heteroskedasticity-and-robust-standard-errors/\#disqus_thread}{(reference)}
-
-  \begin{itemize}
-  \tightlist
-  \item
-    They do not solve the problems associated with heteroskedasticity
-    for a nonlinear model estimated using maximum likelihood, and have a
-    different interpretation.
-  \item
-    STATA: option \texttt{robust} or \texttt{vce(robust)} is
-    unnecessary.
-  \end{itemize}
-\end{itemize}
+--\textgreater{}
 \end{frame}
 
 \begin{frame}[fragile]{{[}SN{]} Stata command for Probit regression}
@@ -1190,6 +1157,64 @@ Hence, the three dummy variables are jointly very significant. It
 appears that a model with just \texttt{black} fits these data best.
 \end{frame}
 
+\hypertarget{summary}{%
+\section{SUMMARY}\label{summary}}
+
+\begin{frame}{Summary}
+\protect\hypertarget{summary-1}{}
+\begin{itemize}
+\tightlist
+\item
+  We has covered \emph{``Regression with Binary Dependent Variables''}
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Linear Probability Model (LPM)
+
+    \begin{itemize}
+    \tightlist
+    \item
+      estimated using Ordinary Least Squares.
+    \end{itemize}
+  \item
+    Probit Model (PROBIT)
+
+    \begin{itemize}
+    \tightlist
+    \item
+      estimated using Maximum Likelihood.
+    \end{itemize}
+  \end{itemize}
+\end{itemize}
+
+\vspace{0.8mm}
+
+\begin{itemize}
+\tightlist
+\item
+  Both models produce predicted probabilities, highly correlated yet not
+  always identical as the probabilities have different functional forms.
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Predicted probabilities from LMP can fall outside of \([0,1]\), less
+    reasonable than PROBIT.
+  \end{itemize}
+\item
+  Both models produce estimated effect of \(\Delta{X}\) on
+  \(\text{Pr}(Y=1\mid X)\).
+
+  \begin{itemize}
+  \tightlist
+  \item
+    LMP assumes constant marginal effects for \(X\); in PROBIT, this
+    depends on the initial value of \(X\).
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
 \hypertarget{brief-review}{%
 \section{BRIEF REVIEW}\label{brief-review}}
 
@@ -1237,7 +1262,7 @@ APE_{bvar} &= \frac{1}{n} \sum_{i=1}^{N} \Phi (\hat{\beta}_0 + bvar \hat\beta_{b
 \end{frame}
 
 \begin{frame}{Exercise 1(i-II)}
-\protect\hypertarget{mosinex_max}{}
+\protect\hypertarget{monsinexmax}{}
 \begin{center}\includegraphics[width=0.9\linewidth]{pictures/mosinex_max1} \end{center}
 
 \begin{center}\includegraphics[width=0.9\linewidth]{pictures/mosinex_max2} \end{center}
