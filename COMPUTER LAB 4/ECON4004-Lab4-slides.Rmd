@@ -1,0 +1,903 @@
+---
+title: "Econometrics: Multiple Regression and Applications"
+author: "Duong Trinh"
+date: "February 28, 2024"
+institute: University of Glasgow
+output:
+  beamer_presentation:
+    keep_tex: yes
+    slide_level: 2
+    includes:
+      in_header: preamble_MyText.tex
+  slidy_presentation: default
+  ioslides_presentation: default
+  pdf_document: default
+subtitle: 'ECON4004: LAB 4'
+fontsize: 10pt
+geometry: left = 1cm, right = 0.5cm, top = 0.5cm, bottom = 0.5cm
+linestretch: 1.5
+linkcolor: blue
+header-includes:
+- \usepackage{float}
+- \usepackage{booktabs}
+- \usepackage{array}
+- \usepackage{multirow}
+- \usepackage{mathtools}
+- \usepackage{xcolor}
+- \setbeamertemplate{itemize item}{$\diamond$}
+- \setbeamertemplate{itemize subitem}{\scriptsize$\diamond$}
+- \setbeamertemplate{navigation symbols}{}
+- \setbeamertemplate{footline}[page number]
+- \definecolor{blue}{RGB}{0,114,178}
+- \definecolor{red}{RGB}{213,94,0}
+- \definecolor{yellow}{RGB}{240,228,66}
+- \definecolor{green}{RGB}{0,158,115}
+---
+
+```{r, setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(knitr.table.format = function() {
+  if (knitr::is_latex_output()) 'latex' else 'pandoc'
+})
+```
+
+```{r, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, results='hide'}
+# install.packages("Statamarkdown")
+library(Statamarkdown)
+```
+
+## Intro
+
++ Duong Trinh
+  + PhD Student in Economics (Bayesian Microeconometrics)
+  + Email: \underline{Duong.Trinh@glasgow.ac.uk}
+
+\vspace{3mm}
+
++ ECON4004-LB01
+  + Wednesday 10am -12 pm
+  + 5 sessions (7-Feb, 14-Feb, 21-Feb, 28-Feb, 6-March)
+  + ST ANDREWS:357
+  
++ ECON4004-LB02
+  + Wednesday 12-2 pm
+  + 5 sessions (7-Feb, 14-Feb, 21-Feb, 28-Feb, 6-March)
+  + ST ANDREWS:357
+  
+## Record Attendance
+
+```{r, echo=FALSE, eval=FALSE, out.width='80%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/QRcodeAtd_LB01.png")
+```
+
+```{r, echo=FALSE, eval=FALSE, out.width='80%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/QRcodeAtd_LB02.png")
+```
+
+## Plan for LAB 3
+
++ Exercise 1: based on Stock \& Watson, E10.1
++ Exercise 2: based on Stock \& Watson, E10.2
+
+\vspace{3mm}
+
++ We will focus on *"Panel Data - Fixed Effects Regressions"*
+
+# BRIEF REVIEW
+
+## Panel Data - What it looks like…
+
+::: columns 
+
+:::: {.column width=.3}
+
+\vspace{7mm}
+
+\small 
+Panel data is a dataset in which the behavior of entities ($i$) are observed across time ($t$).
+
+\vspace{2mm}
+
+$$
+\begin{aligned}
+&(X_{it},Y_{it}), \\
+&i = 1,\ldots,n; t = 1,\ldots, T
+\end{aligned}
+$$
+
+\vspace{2mm}
+These entities could be states, companies, families, individuals, countries, etc.
+
+::::
+
+:::: column
+
+```{r, echo=FALSE, out.width='120%', fig.show='hold', fig.align='right', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/PanelData_longform.png")
+```
+
+::::
+
+:::
+
+## Panel Data - The Long Form
+
+::: columns 
+
+:::: {.column width=.3}
+
+\vspace{2cm}
+
+\normalsize
+Preparing data into panel data format:
+
+\small
+\vspace{2mm}
+Entity and Time in rows.
+
+$\&$
+
+Variables in columns.
+
+::::
+
+:::: column
+
+```{r, echo=FALSE, out.width='120%', fig.show='hold', fig.align='right', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/PanelData_longform.png")
+```
+
+::::
+
+:::
+
+## Balanced Panel 
+
+::: columns 
+
+:::: {.column width=.3}
+
+\vspace{2cm}
+
+\small
+All entities are observed across all times. 
+$$
+\begin{aligned}
+\text{51 states} &\times \text{23 years}\\
+&\text{= 1173 observations}
+\end{aligned}
+$$
+::::
+
+:::: column
+
+```{r, echo=FALSE, out.width='125%', fig.show='hold', fig.align='right', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Q1-panelView-balanced.jpg")
+```
+
+::::
+
+:::
+
+## Unbalanced Panel
+
+::: columns 
+
+:::: {.column width=.3}
+
+\vspace{2cm}
+
+\small
+Some entities are not observed in some time periods.
+
+::::
+
+:::: column
+
+```{r, echo=FALSE, out.width='125%', fig.show='hold', fig.align='right', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Q2-panelView-unbalanced.jpg")
+```
+
+::::
+
+:::
+
+## [SN] STATA command for Setting Data as Panel
+
+Once the data is in long form, we need to set it as panel so we can use Stata’s panel data `xt` commands.
+
+\small
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+*xtset entityid timeid
+//'entityid' and 'timeid' have to be in numeric format
+```
+
+```{r, echo=FALSE, out.width='48%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics(c("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Ex1-xtset.png",
+"/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Ex2-xtset.png"))
+```
+
+\footnotesize 
+\underline{Note}: `id` means unique identifiers for entity (`entityid`) or for time period (`timeid`)
+
+## [SN] STATA command for Visualizing Panel Data
+
+Once the data is set as panel, we can use a series of `xt` commands to analyze it.
+
+\vspace{3mm}
+
+For visualization
+\small
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+*xtline varname_of_inteterest
+//graphs by entities
+```
+\small
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+*xtline varname_of_inteterest, overlay legend(off)
+//all entities in one graph
+```
+
+## Fixed Effects Regressions - General Form
+
+For $i = 1,\ldots,n$ and $t = 1,\ldots,T$
+
+$$
+Y_{it} = {\color{gray}{\overbracket{\color{black}{\beta_1 X_{1,it} + \beta_2 X_{2,it} + \ldots + \beta_k X_{k,it}}}^{\text{k regressor}}}} + {\color{red}{\underbracket{\alpha_i}_{\substack{\text{entity}\\ \text{fixed effects}}}}} + {\color{green}{\underbracket{\lambda_t}_{\substack{\text{time}\\ \text{fixed effects}}}}} + u_{it}
+$$
+
+$$
+\begin{aligned}
+&(3) \quad \text{Both E}\&\text{T Fixed Effects: } &Y_{it} &= \beta_1 X_{it} + {\color{red}{\underbracket{\alpha_i}_{\substack{\text{entity}\\ \text{fixed effects}}}}} + {\color{green}{\underbracket{\lambda_t}_{\substack{\text{time}\\ \text{fixed effects}}}}} + u_{it}\\
+&(1) \quad \text{Entity Fixed Effects: }
+&Y_{it} &= \beta_1 X_{it} + {\color{red}{\alpha_i}} + u_{it}\\
+\\
+&(2) \quad \text{Time Fixed Effects: }
+&Y_{it} &= \beta_1 X_{it} + {\color{green}{\lambda_t}} + u_{it}
+\end{aligned}
+$$
+
+## (1) Entity Fixed Effects (Time-invariant) {#EntityFEs}
+
+$$
+Y_{it} =  \beta_1 X_{it} + {\color{red}{\overbracket{\alpha_i}^{\substack{\text{n entity-specific}\\ \text{intercepts}}}}} + u_{it}
+$$
+$$\Downarrow$$
+$$
+Y_{it} = {\color{red}{\underbracket{\beta_0}_{\text{an intercept}}}} + \beta_1 X_{it} + {\color{red}{\underbracket{\gamma_2 D2_i + \gamma_3 D3_i + \ldots + \gamma_n Dn_i}_{\text{with n-1 entity binary indicators}}}} +  u_{it}
+$$
+
+Entity $\mathbf{1}$: $\alpha_1 = \beta_0$
+
+Entity $\mathbf{2}$: $\alpha_2 = \beta_0 + \gamma_2$
+
+Entity $\mathbf{3}$: $\alpha_3 = \beta_0 + \gamma_3$
+
+$\vdots$
+
+Entity $\mathbf{n}$: $\alpha_n = \beta_0 + \gamma_n$
+
+\footnotesize \underline{Note}: This form suggests estimating regression model with $n-1$ binary indicators by OLS, but we can also use *"entity-demeaned" OLS algorithm*.
+
+## (2) Time Fixed Effects (Entity-invariant) {#TimeFEs}
+
+$$
+Y_{it} = \beta_1 X_{it} + {\color{green}{\overbracket{\lambda_t}^{\substack{\text{T time-specific}\\ \text{intercepts}}}}} + u_{it}
+$$
+$$\Downarrow$$
+$$
+Y_{it} = {\color{green}{\underbracket{\beta_0}_{\text{an intercept}}}} + \beta_1 X_{it} + {\color{green}{\underbracket{\delta_2 B2_t + \delta_3 B3_t + \ldots + \delta_T BT_t}_{\text{with n-1 time binary indicators}}}} + u_{it}
+$$
+Time period $\mathbf{1}$: $\lambda_1 = \beta_0$
+
+Time period $\mathbf{2}$: $\lambda_2 = \beta_0 + \delta_2$
+
+Time period $\mathbf{3}$: $\lambda_3 = \beta_0 + \delta_3$
+
+$\vdots$
+
+Time period $\mathbf{T}$: $\lambda_T = \beta_0 + \delta_T$
+
+\footnotesize \underline{Note}: This form suggests estimating regression model with $T-1$ binary indicators by OLS, but we can also use *"time-demeaned" OLS algorithm*.
+
+## (3) Both Entity and Time (Two-way) Fixed Effects {#BothFEs}
+
+$$
+Y_{it} = \beta_1 X_{it} + {\color{red}{\overbracket{\alpha_i}^{\substack{\text{entity}\\ \text{fixed effects}}}}} + {\color{green}{\overbracket{\lambda_t}^{\substack{\text{time}\\ \text{fixed effects}}}}} + u_{it}
+$$
+$$\Downarrow$$
+$$
+\begin{aligned}
+Y_{it} = {\color{blue}{\underbracket{\beta_0}_{\text{an intercept}}}} + \beta_1 X_{it} 
+&+ {\color{red}{\underbracket{\gamma_2 D2_i + \gamma_3 D3_i + \ldots + \gamma_n Dn_i}_{\text{with n-1 entity binary indicators}}}} \\
+&+ {\color{green}{\underbracket{\delta_2 B2_t + \delta_3 B3_t + \ldots + \delta_T BT_t}_{\text{with n-1 time binary indicators}}}}
++  u_{it}
+\end{aligned}
+$$
+
+\vspace{3mm}
+
+\footnotesize \underline{Note}: This form suggests estimating regression model with $n-1$ entity binary indicators and $T-1$ time binary indicators by OLS, but we can also combine with *"demeaned" OLS algorithm*.
+
+## [SN] STATA syntax for Fixed Effects Regressions
+
+\normalsize(1) \textcolor{red}{Entity} Fixed Effects\small
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+*xtreg yvar xvar, fe vce(cluster entityid)
+```
+
+\normalsize(2) \textcolor{green}{Time} Fixed Effects\small
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+*regress yvar xvar i.timeid, fe vce(cluster entityid)
+```
+
+\normalsize(3) Both \textcolor{red}{Entity} $\&$ \textcolor{green}{Time} Fixed Effects\small
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+*xtreg yvar xvar i.timeid, fe vce(cluster entityid)
+```
+
+\footnotesize 
+\underline{Note}: `id` means unique identifiers for entity (`entityid`) or for time period (`timeid`)
+
+## Clustered Standard Errors
+
+$$
+\begin{matrix}
+    & {\color{green}{t=1}}     & {\color{green}{t=2}}    & \ldots & {\color{green}{t=T}}
+\\
+{\color{red}{i=1}} & u_{11}  & u_{12} & \ldots & u_{1T}
+\\
+{\color{red}{i=2}} & u_{21}  & u_{22} & \ldots & u_{2T}
+\\
+\vdots & \vdots & \vdots & \ldots & \vdots
+\\
+{\color{red}{i=n}} & u_{n1}  & u_{n2} & \ldots & u_{nT}
+\\
+\end{matrix}
+$$
+
++ Sampling are \textcolor{red}{\textit{i.i.d}} across entities.
+
++ But if the omitted factors comprising the error term $u_{it}$ are serially correlated, then $u_{it}$ is serially correlated aka \textcolor{green}{\textit{autocorrelated}} - that is, correlated over time within an entity.
+
+Standard errors need to allow both for this autocorrelation and for potential heteroskedasticity $\rightarrow$ use **clustered standard errors**.
+
+\small
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+*[, vce(cluster entityid)]
+//add this option at the end of STATA regressions 
+```
+
+<!-- The general approach to obtaining fully robust standard errors and test statistics in the context of panel data is known as clustering, and ideas have been borrowed from the cluster sampling -->
+<!-- literature. The idea is that each cross-sectional unit is defined as a cluster of observations over time, -->
+<!-- and arbitrary correlation—serial correlation—and changing variances are allowed within each -->
+<!-- cluster. Because of the relationship to cluster sampling, many econometric software packages have -->
+<!-- options for clustering standard errors and test statistics. The resulting standard errors are often called -->
+<!-- cluster-robust standard errors. As a bonus, such standard errors are also robust to heteroskedasticity -->
+<!-- of unknown form -->
+
+<!-- There is one important point about clustering to account for serial correlation: it does not -->
+<!-- account for any cross-sectional correlation. In fact, we assume that the draws of units i from the -->
+<!-- population are independent. Removing one potential source of cross-sectional correlation, the unobserved effect ai, can help. Also, controlling for aggregate time effects through the time dummies -->
+<!-- accounts for cross-sectional correlation caused by common shocks. -->
+
+# Excercise 1: based on Stock \& Watson, E10.1
+
++ **Objective:** Analyze effects of *concealed weapons laws* on *violent crimes*.
+    + [Proponents:] More people carry concealed weapons, crime will decline because criminals will be deterred from attacking other people. 
+    + [Opponents:] Crime will increase because of accidental or spontaneous use of the weapons.
+
+\vspace{0.8mm}
+
++ **Dataset:** \texttt{Guns.dta}
+  + A balanced panel of data from the 50 U.S. states plus the District of Columbia for 23 years (1977-1999).
+  
+\vspace{0.8mm}
+
++ **Key variables:**
+  + `stateid`: ID number of states (Alabama = 1, Alaska = 2, etc.)
+  + `year`: year (1977-1999)
+  + `shall`: $=1$ if the state has a shall-carry law in effect in that year
+$=0$ otherwise
+  + `vio`: violent crime rate.
+
+
+## Variable Description
+
+```{r, echo=FALSE, out.width='95%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Ex1-VarDef.png")
+```
+\footnotesize 
+Source: [Ayres, I. and Donohue, J.J., 2002. Shooting down the more guns, less crime hypothesis.](https://ianayres.yale.edu/sites/default/files/files/Ayres_Donohue_article.pdf)
+
+## {}
+
+```{r, echo=FALSE, out.width='100%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Ex1-xtset-xtline.png")
+```
+
+```{r, echo=FALSE, out.width='100%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Q1-panelView.png")
+```
+
+## Questions
+
+(a) Estimate a linear regression model of:
+
+  + (M1) `ln(vio)` against `shall`.
+  
+  + (M2) `ln(vio)` against `shall`, `incarc_rate`, `density`, `avginc`, `pop`, `pb1064`, `pw1064` and `pm1029`.
+  
+i. Interpret the coefficient on shall in (M2).  
+   Is this estimate large or small in a real-world sense?
+   
+ii. Does adding the control variables in (M2) change the estimated effect of a shall-issue law in (M1) as measured by statistical significance? As measured by the real-world significance of the estimated coefficient?
+
+iii. Suggest a variable that varies across states but plausibly varies little or not at all over time and that could cause omitted variable bias in (M2).
+
+## Questions
+
+(b) Do the results change when you add *state fixed effects*?  
+    If so, which set of regression results is more credible, and why?
+    
+\vspace{3mm}
+    
+(c) Do the results change when you add *time fixed effects*?  
+    If so, which set of regression results is more credible, and why?
+    
+\vspace{3mm}
+    
+(d) Repeat the analysis using `ln(rob)` and `ln(mur)` in place of `ln(vio)`. 
+
+## (a-i,ii) Estimate linear regression models (M1) and (M2) {#Ex1-pooledOLS-A}
+
+From OLS estimation results for (M1) \footnotesize [(>>stata)](#Ex1-pooledsimple) \normalsize and (M2) \footnotesize [(>>stata)](#Ex1-pooledwithctrls) \normalsize
+
++ The coefficient is $-0.368$, which suggests that shall-issue laws reduce violent crime by $36\%$. This is a large effect.
+
++ The coefficient in (1) is $-0.443$; in (2) it is $-0.368$. Both are highly statistically significant. Adding the control variables results in a small drop in the coefficient.
+
+## (a-iii) Suggest a variable that varies across states but plausibly varies little or not at all over time and that could cause omitted variable bias in (M2).
+
+There are several examples:
+
++ Residents' attitudes towards guns and crime, these are typically slow to change.
+
++ Quality of police and other crime-prevention programs.
+
++ For historical reasons, cities can have very different crime rates.
+
++ Geographic features.
+
++ etc.
+
+$\Longrightarrow$ These factors constitute an *unobserved state effect*/ *state fixed effect*/ *unobserved state heterogeneity*. If they and the variable of interest (`shall`) are correlated, omitting such variables results in OVB (**heterogeneity bias**).
+
+## (b) Do the results change when you add *state fixed effects*?
+
+Good news: These time-invariant factors can be effectively captured by the state fixed effect $a_i$! \footnotesize [(>>review)](#EntityFEs) \normalsize
+
+
+## (b) Do the results change when you add *state fixed effects*?
+\footnotesize
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+*xtreg yvar xvar, fe vce(cluster entityid)
+```
+
+```{r, echo=FALSE, out.width='80%', fig.show='hold', fig.align='left', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Ex1-EntityFEs.png")
+```
+
+## (b) Do the results change when you add *state fixed effects*?
+
++ In (M3) the coefficient on shall falls to $-0.046$, a large reduction in the coefficient from (M2). The estimate is not statistically significantly different from zero.
+
++ Evidently there was important omitted variable bias leading to a spurious effect in (M2).
+
++ The constant reported in `xtreg, fe` results implies the estimated average fixed effect.  
+
+\vspace{2mm}
+
+\small \textcolor{gray}{Like experiments $\rightarrow$ Let's compare:}
+
+\footnotesize
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+reg lvio shall i.stateid 
+```
+
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+xtreg lvio shall, fe
+```
+
+## (c) Do the results change when you add *time fixed effects*? 
+
+\footnotesize
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+*xtreg yvar xvar i.timeid, fe vce(cluster entityid)
+```
+
+```{r, echo=FALSE, out.width='80%', fig.show='hold', fig.align='left', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Ex1-TwowayFEs-5.png")
+```
+
+## (c) Do the results change when you add *time fixed effects*? 
+
+```{r, echo=FALSE, out.width='70%', fig.show='hold', fig.align='left', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Ex1-TestTimeFEs-2.png")
+```
+
+## (c) Do the results change when you add *time fixed effects*? 
+
++ The coefficient falls further to $-0.028$. The coefficient is insignificantly different from zero. 
+
++ The time effects are jointly statistically significant, so this regression seems better specified than (M3).
+
+## Table of Results - Exercise 1
+
+\small
+\begin{table}[]
+\centering
+\begin{tabular}{|l|cccc|}
+\hline
+\multicolumn{1}{|c|}{\multirow{2}{*}{\textbf{Regressor}}} &
+  \multicolumn{4}{c|}{\textbf{Models}} \\ \cline{2-5}
+\multicolumn{1}{|c|}{} &
+  \multicolumn{1}{c|}{\textbf{(M1)}} &
+  \multicolumn{1}{c|}{\textbf{(M2)}} &
+  \multicolumn{1}{c|}{\textbf{(M3)}} &
+  \textbf{(M4)} \\ \hline
+\textit{shall} &
+  \multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}{\color{red}{-0.443***}}\\ (0.157)\\ {[}-0.76, -0.13{]}\end{tabular}} &
+  \multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}{\color{red}{-0.368***}}\\ (0.114)\\ {[}-0.60, -0.14{]}\end{tabular}} &
+  \multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}{\color{red}{-0.0461}}\\ (0.042)\\ {[}-0.13, 0.04{]}\end{tabular}} &
+  \begin{tabular}[c]{@{}c@{}}{\color{red}{-0.0280}}\\ (0.041)\\ {[}-0.11, 0.05{]}\end{tabular} \\ \hline
+\textit{Controls} &
+  \multicolumn{1}{c|}{No} &
+  \multicolumn{1}{c|}{Yes} &
+  \multicolumn{1}{c|}{Yes} &
+  Yes \\ \hline
+\textit{State effects} &
+  \multicolumn{1}{c|}{No} &
+  \multicolumn{1}{c|}{No} &
+  \multicolumn{1}{c|}{Yes} &
+  Yes \\ \hline
+\textit{Time effects} &
+  \multicolumn{1}{c|}{No} &
+  \multicolumn{1}{c|}{No} &
+  \multicolumn{1}{c|}{No} &
+  Yes \\ \hline
+\end{tabular}
+\end{table}
+\footnotesize
+Notes: Clustered standard errors shown in parentheses and $95\%$ confidence intervals are shown in brackets; 
+       $\text{***} p<0.01$,$\text{**} p<0.05$,$\text{*} p<0.1$.
+       
+# Excercise 2: based on Stock \& Watson, E10.2
+
+## Picture the Scenario
+
++ **Objective:** Do citizens demand more democracy and political freedom
+as their incomes grow? That is, is democracy a normal good?
+
+\vspace{0.8mm}
+
++ **Dataset:** \texttt{Income-Democracy.dta}
+  + a panel data set from $195$ countries for the years $1960, 1965,\ldots,2000$.
+  
+\vspace{0.8mm}
+
++ **Key variables:** For each country in each year
+  + `Dem_ind`: an index of political freedom/democracy. 
+  + `Log_GDPPC`: per capita income.
+  + various demographic controls.
+  
+## Variable Description
+
+```{r, echo=FALSE, out.width='100%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Ex2-VarDef.png")
+```
+\footnotesize 
+Source: [Acemoglu, Daron, Simon Johnson, James A. Robinson, and Pierre Yared. 2008. "Income and Democracy." American Economic Review, 98 (3): 808-42.](https://www.aeaweb.org/articles?id=10.1257/aer.98.3.808)
+
+Notes: The income and demographic variable are lagged five years. 
+
+## {}
+
+```{r, echo=FALSE, out.width='100%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Ex2-xtset-xtline.png")
+```
+
+```{r, echo=FALSE, out.width='100%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Q2-panelView.png")
+```
+
+## Questions
+
+(a) Is the data set a balanced panel? Explain.
+
+\vspace{3mm}
+
+(b) The logarithm of per capita income is labeled `Log_GDPPC`. Regress `Dem_ind` on `Log_GDPPC`. Use standard errors that are clustered by country.
+
+i. How large is the estimated coefficient on `Log_GDPPC`?  
+   Is the coefficient statistically significant?
+  
+ii. If per capita income in a country increases by $20\%$, by how much is `Dem_ind` predicted to increase?  
+    What is a $95\%$ confidence interval for the prediction?  
+    Is the predicted increase in `Dem_ind` large or small? (Explain what you mean by large or small.)
+    
+iii. Why is it important to use clustered standard errors for the regression?  
+     Do the results change if you do not use clustered standard errors?
+     
+## Questions
+
+(c) Estimate the regression in (b), allowing for country fixed effects. How do your answers to (b-i) change?
+    
+\vspace{3mm}
+
+(d) Estimate the regression in (b), allowing for time and country fixed effects. How do your answers to (b-i) change?
+
+\vspace{3mm}
+
+(e) There are additional demographic controls in the data set. Should these variables be included in the regression? If so, how do the results change when they are included?
+
+## (a) Is the data set a balanced panel? Explain.
+
++ The dataset is unbalanced because data are available over different years for different countries. For example, data on `Dem_ind` are available
+\vspace{0.8mm}
+    + for Andorra during 1970, 1995, and 2000;
+    + for Afghanistan during $1960, 1965, \ldots, 2000$.
+
+## (b) Regress `Dem_ind` on `Log_GDPPC` using standard errors clustered by country.
+
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='left', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Ex2-pooledsimplewithclustering.png")
+```
+
+## (b-i) How large is the estimated coefficient on `Log_GDPPC`? 
+
+The coefficient is $0.236$ with a standard error of $0.012$. The $95\%$ confidence interval is $0.212$ to $0.259$. The coefficient is statistically significant.
+
+## (b-ii) If per capita income in a country increases by $20\%$, by how much is `Dem_ind` predicted to increase? 
+
+\footnotesize \textcolor{gray}{Hint: Review Regression models with functional forms involving logarithms.}
+\normalsize
+
++ A $20\%$ increase in GDP per capita implies that log_gdp increases by approximately $0.20$, so that `Dem_ind` is predicted to increase by approximately $0.20\times0.236 = 0.0472$, or about $1/8$ of the standard deviation in the dataset. 
+
++ The $95\%$ confidence for the effect is (approximately) $0.20\times0.212$ to $0.20\times0.259 = 0.0472$ or $0.0424$ to $0.0518$.
+
+## (b-iii) Why is it important to use clustered standard errors \quad for the regression? 
+
+```{r, echo=FALSE, out.width='49%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics(c("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Ex2-pooledsimplewithclustering.png",
+"/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Ex2-pooledsimplemoclustering.png"))
+```
+
+## (b-iii) Why is it important to use clustered standard errors \quad for the regression? 
+
++ Clustered standard errors are needed because of country-specific omitted factors in the regressions.
+
++ The clustered standard error for `Dem_ind` is $0.012$; the unclustered standard error is smaller ($0.007$) because it ignores the positive within-country autocorrelation of the errors.
+
+## (c) Estimate the regression in (b), allowing for country fixed effects. {#Ex2-CountryFEs-A}
+
+Estimation result \footnotesize [(>>stata)](#Ex2-CountryFEs) \normalsize
+
+The estimated coefficient falls by a factor of $3$, to $0.083$ with a standard error of $0.032$. The estimated effect, while significantly smaller is still statistically significant at the $1\%$ significance level.
+
+## (d) Estimate the regression in (b), allowing for time and country fixed effects. {#Ex2-BothFEs-A}
+
+Estimation and test results \footnotesize [(>>stata)](#Ex2-BothFEs) \normalsize
+
+The estimated coefficient falls further to $0.054$, approximately $1/5$ of the value that omits time and country fixed effects. The estimate is not statistically significant at the $10\%$ level.
+
+## (e) Include additional demographic controls in the regression. {#Ex2-BothFEswithcontrols-A}
+
+Estimation and test results \footnotesize [(>>stata)](#Ex2-BothFEswithcontrols) \normalsize
+
+When age, population, and education are included, the estimated coefficient on `log_gdppc` falls further to $0.025$ with a standard error of $0.054$. Jointly, these variables are not statistically significant in the regression, although the age variables are significant at the $10\%$ level.
+
+## Table of Results - Exercise 2
+
+\begin{table}[]
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{|lccccc|}
+\hline
+\multicolumn{1}{|c|}{\multirow{2}{*}{\textbf{Regressor}}} &
+  \multicolumn{5}{c|}{\textbf{Models}} \\ \cline{2-6} 
+\multicolumn{1}{|c|}{} &
+  \multicolumn{1}{c|}{\textbf{(M1)}} &
+  \multicolumn{1}{c|}{\textbf{(M2)}} &
+  \multicolumn{1}{c|}{\textbf{(M3)}} &
+  \multicolumn{1}{c|}{\textbf{(M4)}} &
+  \textbf{(M5)} \\ \hline
+\multicolumn{1}{|l|}{\textit{log\_GDPPC}} &
+  \multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}\color{red}{0.236***}\\ (0.012)\\ {[}0.212, 0.259{]}\end{tabular}} &
+  \multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}\color{red}{0.235***}\\ (0.012)\\ {[}0.211, 0.259{]}\end{tabular}} &
+  \multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}\color{red}{0.083***}\\ (0.031)\\ {[}0.021, 0.146{]}\end{tabular}} &
+  \multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}\color{red}{0.054}\\ (0.042)\\ {[}-0.030, 0.137{]}\end{tabular}} &
+  \begin{tabular}[c]{@{}c@{}}\color{red}{0.025}\\ (0.054)\\ {[}-0.057, 0.120{]}\end{tabular} \\ \hline
+\multicolumn{1}{|l|}{\textit{Controls}} &
+  \multicolumn{1}{c|}{No} &
+  \multicolumn{1}{c|}{No} &
+  \multicolumn{1}{c|}{No} &
+  \multicolumn{1}{c|}{No} &
+  Yes \\ \hline
+\multicolumn{1}{|l|}{\textit{Country effects}} &
+  \multicolumn{1}{c|}{No} &
+  \multicolumn{1}{c|}{No} &
+  \multicolumn{1}{c|}{Yes} &
+  \multicolumn{1}{c|}{Yes} &
+  Yes \\ \hline
+\multicolumn{1}{|l|}{\textit{Time effects}} &
+  \multicolumn{1}{c|}{No} &
+  \multicolumn{1}{c|}{Yes} &
+  \multicolumn{1}{c|}{No} &
+  \multicolumn{1}{c|}{Yes} &
+  Yes \\ \hline
+\multicolumn{6}{|c|}{\textbf{F-statistics and p-values testing exclusion of groups of variables}} \\ \hline
+\multicolumn{1}{|l|}{\textit{Time effects}} &
+  \multicolumn{1}{l|}{} &
+  \multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}9.31\\ (0.000)\end{tabular}} &
+  \multicolumn{1}{c|}{} &
+  \multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}5.73\\ (0.00)\end{tabular}} &
+  \begin{tabular}[c]{@{}c@{}}4.61\\ (0.000)\end{tabular} \\ \hline
+\multicolumn{1}{|l|}{\textit{\begin{tabular}[c]{@{}l@{}}Age \\ variables\end{tabular}}} &
+  \multicolumn{1}{l|}{} &
+  \multicolumn{1}{l|}{} &
+  \multicolumn{1}{c|}{} &
+  \multicolumn{1}{c|}{} &
+  \begin{tabular}[c]{@{}c@{}}2.12\\ (0.08)\end{tabular} \\ \hline
+\multicolumn{1}{|l|}{\textit{\begin{tabular}[c]{@{}l@{}}Age, educ, pop \\ variables\end{tabular}}} &
+  \multicolumn{1}{l|}{} &
+  \multicolumn{1}{l|}{} &
+  \multicolumn{1}{c|}{} &
+  \multicolumn{1}{c|}{} &
+  \begin{tabular}[c]{@{}c@{}}1.44\\ (0.21)\end{tabular} \\ \hline
+\end{tabular}%
+}
+\end{table}
+\footnotesize
+Notes: Clustered standard errors shown in parentheses and $95\%$ confidence intervals are shown in brackets; 
+       $\text{***} p<0.01$,$\text{**} p<0.05$,$\text{*} p<0.1$.
+
+# STATA CODES \& RESULTS
+## Exercise 1(a-i) \footnotesize [(>>back(1a))](#Ex1-pooledOLS-A) \normalsize {#Ex1-pooledsimple}
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Ex1-pooledsimple.png")
+```
+
+## Exercise 1(a-ii) \footnotesize [(>>back(1a))](#Ex1-pooledOLS-A) \normalsize {#Ex1-pooledwithctrls}
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Ex1-pooledwithctrols.png")
+```
+
+## Exercise 1(b-i) {#Ex1-EntityFEs}
+\footnotesize
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+*xtreg yvar xvar, fe vce(cluster entityid)
+```
+
+```{r, echo=FALSE, out.width='80%', fig.show='hold', fig.align='left', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Ex1-EntityFEs.png")
+```
+
+## Exercise 1(b-ii-I)
+\footnotesize
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+*xtreg yvar xvar i.timeid, fe vce(cluster entityid)
+```
+
+```{r, echo=FALSE, out.width='95%', fig.show='hold', fig.align='left', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Ex1-TwowayFEs-1.png")
+```
+\tiny Alternative,
+```{r, echo=FALSE, out.width='95%', fig.show='hold', fig.align='left', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Ex1-TwowayFEs-2.png")
+```
+\tiny Alternative,
+```{r, echo=FALSE, out.width='95%', fig.show='hold', fig.align='left', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Ex1-TwowayFEs-3.png")
+```
+
+## Exercise 1(b-ii-II) {#Ex1-TwowayFEs-4}
+```{r, echo=FALSE, out.width='105%', fig.show='hold', fig.align='left', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Ex1-TwowayFEs-4.png")
+```
+
+## Exercise 1(b-iii) {#Ex1-TestTimeFEs}
+```{r, echo=FALSE, out.width='70%', fig.show='hold', fig.align='left', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Ex1-TestTimeFEs.png")
+```
+
+## Exercise 2(b-I) {#Ex2-pooledsimplewithclustering}
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='left', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Ex2-pooledsimplewithclustering.png")
+```
+
+## Exercise 2(b-II) {#Ex2-pooledsimplemoclustering}
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='left', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Ex2-pooledsimplemoclustering.png")
+```
+
+## {-}
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='left', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Ex2-TimeFEs.png")
+```
+
+## {-}
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='left', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Ex2-TimeFEsTest.png")
+```
+
+## Exercise 2(c) \footnotesize [(>>back(2c))](#Ex2-CountryFEs-A) \normalsize {#Ex2-CountryFEs}
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='left', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Ex2-CountryFEs.png")
+```
+
+## Exercise 2(d-I) \footnotesize [(>>back(2d))](#Ex2-BothFEs-A) \normalsize {#Ex2-BothFEs}
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='left', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Ex2-BothFEs.png")
+```
+
+## Exercise 2(d-II) \footnotesize [(>>back(2d))](#Ex2-BothFEs-A) \normalsize
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='left', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Ex2-BothFEsTest.png")
+```
+
+## Exercise 2(e-I) \footnotesize [(>>back(2e))](#Ex2-BothFEswithcontrols-A) \normalsize {#Ex2-BothFEswithcontrols}
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='left', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Ex2-BothFEswithcontrols.png")
+```
+
+## Exercise 2(e-II) \footnotesize [(>>back(2e))](#Ex2-BothFEswithcontrols-A) \normalsize
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='left', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Ex2-BothFEswithcontrolsTest-1.png")
+```
+
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='left', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Ex2-BothFEswithcontrolsTest-2.png")
+```
+
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='left', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Ex2-BothFEswithcontrolsTest-3.png")
+```

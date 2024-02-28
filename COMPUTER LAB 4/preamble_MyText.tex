@@ -1,0 +1,20 @@
+\usepackage[absolute,overlay]{textpos}
+\usepackage{scalerel,stackengine}
+\usepackage{everypage-1x}
+
+\stackMath
+\newcommand\reallywidehat[1]{%
+\savestack{\tmpbox}{\stretchto{%
+  \scaleto{%
+    \scalerel*[\widthof{\ensuremath{#1}}]{\kern.1pt\mathchar"0362\kern.1pt}%
+    {\rule{0ex}{\textheight}}%WIDTH-LIMITED CIRCUMFLEX
+  }{\textheight}% 
+}{2.4ex}}%
+\stackon[-6.9pt]{#1}{\tmpbox}%
+}
+
+\newcommand\MyText[1]{%
+  \begin{textblock*}{4.5cm}(0.7\textwidth,6cm)%
+    #1
+  \end{textblock*}
+}
