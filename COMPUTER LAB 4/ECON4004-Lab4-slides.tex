@@ -232,8 +232,8 @@
 \protect\hypertarget{record-attendance}{}
 \end{frame}
 
-\begin{frame}{Plan for LAB 3}
-\protect\hypertarget{plan-for-lab-3}{}
+\begin{frame}{Plan for LAB 4}
+\protect\hypertarget{plan-for-lab-4}{}
 \begin{itemize}
 \tightlist
 \item
@@ -276,8 +276,9 @@ observed across time (\(t\)).
 
 \vspace{2mm}
 
-These entities could be states, companies, families, individuals,
-countries, etc.
+These entities could be countries, states, companies, households,
+individuals,
+etc.\footnote[frame]{Rich resource: https://ukdataservice.ac.uk/find-data/browse/ \\}
 \end{column}
 
 \begin{column}{0.48\textwidth}
@@ -520,7 +521,7 @@ Regressions}
 \end{frame}
 
 \begin{frame}[fragile]{Clustered Standard Errors}
-\protect\hypertarget{clustered-standard-errors}{}
+\protect\hypertarget{ClusteredSE}{}
 \[
 \begin{matrix}
     & {\color{green}{t=1}}     & {\color{green}{t=2}}    & \ldots & {\color{green}{t=T}}
@@ -758,7 +759,7 @@ are correlated, omitting such variables results in OVB
 effects}?}
 \protect\hypertarget{b-do-the-results-change-when-you-add-state-fixed-effects}{}
 Good news: These time-invariant factors can be effectively captured by
-the state fixed effect \(a_i\)!
+the state fixed effect \(\alpha_i\)!
 \footnotesize \protect\hyperlink{EntityFEs}{(\textgreater\textgreater review)}
 \normalsize
 \end{frame}
@@ -1057,6 +1058,10 @@ standard errors clustered by country.}
 \begin{frame}{(b-i) How large is the estimated coefficient on
 \texttt{Log\_GDPPC}?}
 \protect\hypertarget{b-i-how-large-is-the-estimated-coefficient-on-log_gdppc}{}
+\[
+\underset{(clustered \enspace se)}{\reallywidehat{Dem\_ind}} = \underset{(.100)}{-1.35} +  \underset{(.012)}{.236} \cdot Log\_GDPPC 
+\]
+
 The coefficient is \(0.236\) with a standard error of \(0.012\). The
 \(95\%\) confidence interval is \(0.212\) to \(0.259\). The coefficient
 is statistically significant.
@@ -1066,15 +1071,24 @@ is statistically significant.
 increases by \(20\%\), by how much is \texttt{Dem\_ind} predicted to
 increase?}
 \protect\hypertarget{b-ii-if-per-capita-income-in-a-country-increases-by-20-by-how-much-is-dem_ind-predicted-to-increase}{}
-\footnotesize \textcolor{gray}{Hint: Review Regression models with functional forms involving logarithms.}
+\footnotesize \textcolor{gray}{Hint: Review Regression models with functional forms involving logarithms; $20\%$ is a big leap for approximation though.}
 \normalsize
 
+\vspace{0.8mm}
+
 \begin{itemize}
+\tightlist
 \item
-  A \(20\%\) increase in GDP per capita implies that log\_gdp increases
-  by approximately \(0.20\), so that \texttt{Dem\_ind} is predicted to
-  increase by approximately \(0.20\times0.236 = 0.0472\), or about
-  \(1/8\) of the standard deviation in the dataset.
+  A \(20\%\) increase in GDP per capita implies that \texttt{Log\_GDPPC}
+  increases by approximately \(0.20\), so that \texttt{Dem\_ind} is
+  predicted to increase by approximately \(0.20\times0.236 = 0.0472\),
+  or about \(1/8\) of the standard deviation in the dataset.
+\end{itemize}
+
+\vspace{0.8mm}
+
+\begin{itemize}
+\tightlist
 \item
   The \(95\%\) confidence for the effect is (approximately)
   \(0.20\times0.212\) to \(0.20\times0.259 = 0.0472\) or \(0.0424\) to
@@ -1085,6 +1099,10 @@ increase?}
 \begin{frame}{(b-iii) Why is it important to use clustered standard
 errors \quad for the regression?}
 \protect\hypertarget{b-iii-why-is-it-important-to-use-clustered-standard-errors-for-the-regression}{}
+Compare two models with vs without clustered standard errors
+\footnotesize \protect\hyperlink{ClusteredSE}{(\textgreater\textgreater review)}
+\normalsize
+
 \begin{center}\includegraphics[width=0.49\linewidth]{pictures/Ex2-pooledsimplewithclustering} \includegraphics[width=0.49\linewidth]{pictures/Ex2-pooledsimplemoclustering} \end{center}
 \end{frame}
 
@@ -1092,9 +1110,16 @@ errors \quad for the regression?}
 standard errors \quad for the regression?}
 \protect\hypertarget{b-iii-why-is-it-important-to-use-clustered-standard-errors-for-the-regression-1}{}
 \begin{itemize}
+\tightlist
 \item
   Clustered standard errors are needed because of country-specific
   omitted factors in the regressions.
+\end{itemize}
+
+\vspace{0.8mm}
+
+\begin{itemize}
+\tightlist
 \item
   The clustered standard error for \texttt{Dem\_ind} is \(0.012\); the
   unclustered standard error is smaller (\(0.007\)) because it ignores
@@ -1135,7 +1160,7 @@ Estimation and test results
 \normalsize
 
 When age, population, and education are included, the estimated
-coefficient on \texttt{log\_gdppc} falls further to \(0.025\) with a
+coefficient on \texttt{Log\_GDPPC} falls further to \(0.025\) with a
 standard error of \(0.054\). Jointly, these variables are not
 statistically significant in the regression, although the age variables
 are significant at the \(10\%\) level.
@@ -1156,7 +1181,7 @@ are significant at the \(10\%\) level.
   \multicolumn{1}{c|}{\textbf{(M3)}} &
   \multicolumn{1}{c|}{\textbf{(M4)}} &
   \textbf{(M5)} \\ \hline
-\multicolumn{1}{|l|}{\textit{log\_GDPPC}} &
+\multicolumn{1}{|l|}{\textit{Log\_GDPPC}} &
   \multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}\color{red}{0.236***}\\ (0.012)\\ {[}0.212, 0.259{]}\end{tabular}} &
   \multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}\color{red}{0.235***}\\ (0.012)\\ {[}0.211, 0.259{]}\end{tabular}} &
   \multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}\color{red}{0.083***}\\ (0.031)\\ {[}0.021, 0.146{]}\end{tabular}} &
@@ -1282,51 +1307,28 @@ confidence intervals are shown in brackets;
 
 \begin{frame}{}
 \protect\hypertarget{section-2}{}
-\begin{flushleft}\includegraphics[width=0.9\linewidth]{pictures/Ex2-TimeFEs} \end{flushleft}
 \end{frame}
 
 \begin{frame}{}
 \protect\hypertarget{section-3}{}
-\begin{flushleft}\includegraphics[width=0.9\linewidth]{pictures/Ex2-TimeFEsTest} \end{flushleft}
 \end{frame}
 
 \begin{frame}{Exercise 2(c)
 \footnotesize \protect\hyperlink{Ex2-CountryFEs-A}{(\textgreater\textgreater back(2c))}
 \normalsize }
 \protect\hypertarget{Ex2-CountryFEs}{}
-\begin{flushleft}\includegraphics[width=0.9\linewidth]{pictures/Ex2-CountryFEs} \end{flushleft}
 \end{frame}
 
 \begin{frame}{Exercise 2(d-I)
 \footnotesize \protect\hyperlink{Ex2-BothFEs-A}{(\textgreater\textgreater back(2d))}
 \normalsize }
 \protect\hypertarget{Ex2-BothFEs}{}
-\begin{flushleft}\includegraphics[width=0.9\linewidth]{pictures/Ex2-BothFEs} \end{flushleft}
-\end{frame}
-
-\begin{frame}{Exercise 2(d-II)
-\footnotesize \protect\hyperlink{Ex2-BothFEs-A}{(\textgreater\textgreater back(2d))}
-\normalsize}
-\protect\hypertarget{exercise-2d-ii-back2d}{}
-\begin{flushleft}\includegraphics[width=0.9\linewidth]{pictures/Ex2-BothFEsTest} \end{flushleft}
-\end{frame}
-
-\begin{frame}{Exercise 2(e-I)
-\footnotesize \protect\hyperlink{Ex2-BothFEswithcontrols-A}{(\textgreater\textgreater back(2e))}
-\normalsize }
-\protect\hypertarget{Ex2-BothFEswithcontrols}{}
-\begin{flushleft}\includegraphics[width=0.9\linewidth]{pictures/Ex2-BothFEswithcontrols} \end{flushleft}
 \end{frame}
 
 \begin{frame}{Exercise 2(e-II)
 \footnotesize \protect\hyperlink{Ex2-BothFEswithcontrols-A}{(\textgreater\textgreater back(2e))}
 \normalsize}
 \protect\hypertarget{exercise-2e-ii-back2e}{}
-\begin{flushleft}\includegraphics[width=0.9\linewidth]{pictures/Ex2-BothFEswithcontrolsTest-1} \end{flushleft}
-
-\begin{flushleft}\includegraphics[width=0.9\linewidth]{pictures/Ex2-BothFEswithcontrolsTest-2} \end{flushleft}
-
-\begin{flushleft}\includegraphics[width=0.9\linewidth]{pictures/Ex2-BothFEswithcontrolsTest-3} \end{flushleft}
 \end{frame}
 
 \end{document}

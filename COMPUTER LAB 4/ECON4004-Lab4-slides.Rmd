@@ -66,17 +66,7 @@ library(Statamarkdown)
   
 ## Record Attendance
 
-```{r, echo=FALSE, eval=FALSE, out.width='80%', fig.show='hold', fig.align='center', fig.pos = 'H'}
-library(knitr)
-knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/QRcodeAtd_LB01.png")
-```
-
-```{r, echo=FALSE, eval=FALSE, out.width='80%', fig.show='hold', fig.align='center', fig.pos = 'H'}
-library(knitr)
-knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/QRcodeAtd_LB02.png")
-```
-
-## Plan for LAB 3
+## Plan for LAB 4
 
 + Exercise 1: based on Stock \& Watson, E10.1
 + Exercise 2: based on Stock \& Watson, E10.2
@@ -108,7 +98,7 @@ $$
 $$
 
 \vspace{2mm}
-These entities could be states, companies, families, individuals, countries, etc.
+These entities could be countries, states, companies, households, individuals, etc.\footnote[frame]{Rich resource: https://ukdataservice.ac.uk/find-data/browse/ \\}
 
 ::::
 
@@ -346,7 +336,7 @@ $$
 \footnotesize 
 \underline{Note}: `id` means unique identifiers for entity (`entityid`) or for time period (`timeid`)
 
-## Clustered Standard Errors
+## Clustered Standard Errors {#ClusteredSE}
 
 $$
 \begin{matrix}
@@ -407,7 +397,6 @@ Standard errors need to allow both for this autocorrelation and for potential he
   + `shall`: $=1$ if the state has a shall-carry law in effect in that year
 $=0$ otherwise
   + `vio`: violent crime rate.
-
 
 ## Variable Description
 
@@ -485,7 +474,7 @@ $\Longrightarrow$ These factors constitute an *unobserved state effect*/ *state 
 
 ## (b) Do the results change when you add *state fixed effects*?
 
-Good news: These time-invariant factors can be effectively captured by the state fixed effect $a_i$! \footnotesize [(>>review)](#EntityFEs) \normalsize
+Good news: These time-invariant factors can be effectively captured by the state fixed effect $\alpha_i$! \footnotesize [(>>review)](#EntityFEs) \normalsize
 
 
 ## (b) Do the results change when you add *state fixed effects*?
@@ -673,18 +662,44 @@ knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Eco
 
 ## (b-i) How large is the estimated coefficient on `Log_GDPPC`? 
 
+$$
+\underset{(clustered \enspace se)}{\reallywidehat{Dem\_ind}} = \underset{(.100)}{-1.35} +  \underset{(.012)}{.236} \cdot Log\_GDPPC 
+$$
+
 The coefficient is $0.236$ with a standard error of $0.012$. The $95\%$ confidence interval is $0.212$ to $0.259$. The coefficient is statistically significant.
 
 ## (b-ii) If per capita income in a country increases by $20\%$, by how much is `Dem_ind` predicted to increase? 
 
-\footnotesize \textcolor{gray}{Hint: Review Regression models with functional forms involving logarithms.}
+\footnotesize \textcolor{gray}{Hint: Review Regression models with functional forms involving logarithms; $20\%$ is a big leap for approximation though.}
 \normalsize
 
-+ A $20\%$ increase in GDP per capita implies that log_gdp increases by approximately $0.20$, so that `Dem_ind` is predicted to increase by approximately $0.20\times0.236 = 0.0472$, or about $1/8$ of the standard deviation in the dataset. 
+\vspace{0.8mm}
+
++ A $20\%$ increase in GDP per capita implies that `Log_GDPPC` increases by approximately $0.20$, so that `Dem_ind` is predicted to increase by approximately $0.20\times0.236 = 0.0472$, or about $1/8$ of the standard deviation in the dataset.
+
+\vspace{0.8mm}
 
 + The $95\%$ confidence for the effect is (approximately) $0.20\times0.212$ to $0.20\times0.259 = 0.0472$ or $0.0424$ to $0.0518$.
 
+<!-- $$ -->
+<!-- \widehat{Y} = \hat\beta_0 + \hat\beta_1 ln(X) -->
+<!-- $$ -->
+
+<!-- $1\%$ increase in $X$  -->
+<!-- $$ -->
+<!-- \Delta \widehat{Y} = \hat{\beta}_1 ln(1.01\cdot X) -  \hat{\beta}_1 ln(X) = \hat{\beta}_1 ln(1.01) = 0.009950331\cdot\hat\beta_1 \approx 0.01\cdot\hat{\beta}_1 -->
+<!-- $$ -->
+
+<!-- $20\%$ increase in $X$ -->
+<!-- $$ -->
+<!-- \Delta \widehat{Y} = \hat{\beta}_1 ln(1.2\cdot X) -  \hat{\beta}_1 ln(X) = \hat{\beta}_1 ln(1.2) = 0.1823216\cdot\hat{\beta}_1 {\color{red}{\overset{???}{\approx}}} 0.20 \cdot \hat{\beta}_1 -->
+<!-- $$ -->
+
+<!-- $\hat{\beta}_1 = 0.236 \Rightarrow \Delta \widehat{Y} = 0.0430279 {\color{red}{\overset{???}{\approx}}} 0.0472$  -->
+
 ## (b-iii) Why is it important to use clustered standard errors \quad for the regression? 
+
+Compare two models with vs without clustered standard errors \footnotesize [(>>review)](#ClusteredSE) \normalsize
 
 ```{r, echo=FALSE, out.width='49%', fig.show='hold', fig.align='center', fig.pos = 'H'}
 library(knitr)
@@ -695,6 +710,8 @@ knitr::include_graphics(c("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-E
 ## (b-iii) Why is it important to use clustered standard errors \quad for the regression? 
 
 + Clustered standard errors are needed because of country-specific omitted factors in the regressions.
+
+\vspace{0.8mm}
 
 + The clustered standard error for `Dem_ind` is $0.012$; the unclustered standard error is smaller ($0.007$) because it ignores the positive within-country autocorrelation of the errors.
 
@@ -714,7 +731,7 @@ The estimated coefficient falls further to $0.054$, approximately $1/5$ of the v
 
 Estimation and test results \footnotesize [(>>stata)](#Ex2-BothFEswithcontrols) \normalsize
 
-When age, population, and education are included, the estimated coefficient on `log_gdppc` falls further to $0.025$ with a standard error of $0.054$. Jointly, these variables are not statistically significant in the regression, although the age variables are significant at the $10\%$ level.
+When age, population, and education are included, the estimated coefficient on `Log_GDPPC` falls further to $0.025$ with a standard error of $0.054$. Jointly, these variables are not statistically significant in the regression, although the age variables are significant at the $10\%$ level.
 
 ## Table of Results - Exercise 2
 
@@ -731,7 +748,7 @@ When age, population, and education are included, the estimated coefficient on `
   \multicolumn{1}{c|}{\textbf{(M3)}} &
   \multicolumn{1}{c|}{\textbf{(M4)}} &
   \textbf{(M5)} \\ \hline
-\multicolumn{1}{|l|}{\textit{log\_GDPPC}} &
+\multicolumn{1}{|l|}{\textit{Log\_GDPPC}} &
   \multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}\color{red}{0.236***}\\ (0.012)\\ {[}0.212, 0.259{]}\end{tabular}} &
   \multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}\color{red}{0.235***}\\ (0.012)\\ {[}0.211, 0.259{]}\end{tabular}} &
   \multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}\color{red}{0.083***}\\ (0.031)\\ {[}0.021, 0.146{]}\end{tabular}} &
@@ -839,65 +856,72 @@ knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Eco
 ```
 
 ## Exercise 2(b-I) {#Ex2-pooledsimplewithclustering}
+
 ```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='left', fig.pos = 'H'}
 library(knitr)
 knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Ex2-pooledsimplewithclustering.png")
 ```
 
 ## Exercise 2(b-II) {#Ex2-pooledsimplemoclustering}
+
 ```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='left', fig.pos = 'H'}
 library(knitr)
 knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Ex2-pooledsimplemoclustering.png")
 ```
 
 ## {-}
-```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='left', fig.pos = 'H'}
-library(knitr)
-knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Ex2-TimeFEs.png")
-```
+
+<!-- ```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='left', fig.pos = 'H'} -->
+<!-- library(knitr) -->
+<!-- knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Ex2-TimeFEs.png") -->
+<!-- ``` -->
 
 ## {-}
-```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='left', fig.pos = 'H'}
-library(knitr)
-knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Ex2-TimeFEsTest.png")
-```
+
+<!-- ```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='left', fig.pos = 'H'} -->
+<!-- library(knitr) -->
+<!-- knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Ex2-TimeFEsTest.png") -->
+<!-- ``` -->
 
 ## Exercise 2(c) \footnotesize [(>>back(2c))](#Ex2-CountryFEs-A) \normalsize {#Ex2-CountryFEs}
-```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='left', fig.pos = 'H'}
-library(knitr)
-knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Ex2-CountryFEs.png")
-```
+
+<!-- ```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='left', fig.pos = 'H'} -->
+<!-- library(knitr) -->
+<!-- knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Ex2-CountryFEs.png") -->
+<!-- ``` -->
 
 ## Exercise 2(d-I) \footnotesize [(>>back(2d))](#Ex2-BothFEs-A) \normalsize {#Ex2-BothFEs}
-```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='left', fig.pos = 'H'}
-library(knitr)
-knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Ex2-BothFEs.png")
-```
 
-## Exercise 2(d-II) \footnotesize [(>>back(2d))](#Ex2-BothFEs-A) \normalsize
-```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='left', fig.pos = 'H'}
-library(knitr)
-knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Ex2-BothFEsTest.png")
-```
+<!-- ```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='left', fig.pos = 'H'} -->
+<!-- library(knitr) -->
+<!-- knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Ex2-BothFEs.png") -->
+<!-- ``` -->
 
-## Exercise 2(e-I) \footnotesize [(>>back(2e))](#Ex2-BothFEswithcontrols-A) \normalsize {#Ex2-BothFEswithcontrols}
-```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='left', fig.pos = 'H'}
-library(knitr)
-knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Ex2-BothFEswithcontrols.png")
-```
+<!-- ## Exercise 2(d-II) \footnotesize [(>>back(2d))](#Ex2-BothFEs-A) \normalsize -->
+<!-- ```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='left', fig.pos = 'H'} -->
+<!-- library(knitr) -->
+<!-- knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Ex2-BothFEsTest.png") -->
+<!-- ``` -->
+
+<!-- ## Exercise 2(e-I) \footnotesize [(>>back(2e))](#Ex2-BothFEswithcontrols-A) \normalsize {#Ex2-BothFEswithcontrols} -->
+<!-- ```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='left', fig.pos = 'H'} -->
+<!-- library(knitr) -->
+<!-- knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Ex2-BothFEswithcontrols.png") -->
+<!-- ``` -->
 
 ## Exercise 2(e-II) \footnotesize [(>>back(2e))](#Ex2-BothFEswithcontrols-A) \normalsize
-```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='left', fig.pos = 'H'}
-library(knitr)
-knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Ex2-BothFEswithcontrolsTest-1.png")
-```
 
-```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='left', fig.pos = 'H'}
-library(knitr)
-knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Ex2-BothFEswithcontrolsTest-2.png")
-```
+<!-- ```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='left', fig.pos = 'H'} -->
+<!-- library(knitr) -->
+<!-- knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Ex2-BothFEswithcontrolsTest-1.png") -->
+<!-- ``` -->
 
-```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='left', fig.pos = 'H'}
-library(knitr)
-knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Ex2-BothFEswithcontrolsTest-3.png")
-```
+<!-- ```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='left', fig.pos = 'H'} -->
+<!-- library(knitr) -->
+<!-- knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Ex2-BothFEswithcontrolsTest-2.png") -->
+<!-- ``` -->
+
+<!-- ```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='left', fig.pos = 'H'} -->
+<!-- library(knitr) -->
+<!-- knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/pictures/Ex2-BothFEswithcontrolsTest-3.png") -->
+<!-- ``` -->
