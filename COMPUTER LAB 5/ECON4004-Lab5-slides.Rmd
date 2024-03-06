@@ -1,0 +1,748 @@
+---
+title: "Econometrics: Multiple Regression and Applications"
+author: "Duong Trinh"
+date: "March 6, 2024"
+institute: University of Glasgow
+output:
+  beamer_presentation:
+    keep_tex: yes
+    slide_level: 2
+    includes:
+      in_header: preamble_MyText.tex
+  slidy_presentation: default
+  ioslides_presentation: default
+  pdf_document: default
+subtitle: 'ECON4004: LAB 5'
+fontsize: 10pt
+geometry: left = 1cm, right = 0.5cm, top = 0.5cm, bottom = 0.5cm
+linestretch: 1.5
+linkcolor: blue
+header-includes:
+- \usepackage{float}
+- \usepackage{booktabs}
+- \usepackage[normalem]{ulem}
+- \useunder{\uline}{\ul}{}
+- \usepackage{array}
+- \usepackage{multirow}
+- \usepackage{mathtools}
+- \usepackage{xcolor}
+- \setbeamertemplate{itemize item}{$\diamond$}
+- \setbeamertemplate{itemize subitem}{\scriptsize$\diamond$}
+- \setbeamertemplate{navigation symbols}{}
+- \setbeamertemplate{footline}[page number]
+- \definecolor{blue}{RGB}{0,114,178}
+- \definecolor{red}{RGB}{213,94,0}
+- \definecolor{yellow}{RGB}{240,228,66}
+- \definecolor{green}{RGB}{0,158,115}
+---
+
+```{r, setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(knitr.table.format = function() {
+  if (knitr::is_latex_output()) 'latex' else 'pandoc'
+})
+```
+
+```{r, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, results='hide'}
+# install.packages("Statamarkdown")
+library(Statamarkdown)
+```
+
+## Intro
+
++ Duong Trinh
+  + PhD Student in Economics (Bayesian Microeconometrics)
+  + Email: \underline{Duong.Trinh@glasgow.ac.uk}
+
+\vspace{3mm}
+
++ ECON4004-LB01
+  + Wednesday 10am -12 pm
+  + 5 sessions (7-Feb, 14-Feb, 21-Feb, 28-Feb, 6-March)
+  + ST ANDREWS:357
+  
++ ECON4004-LB02
+  + Wednesday 12-2 pm
+  + 5 sessions (7-Feb, 14-Feb, 21-Feb, 28-Feb, 6-March)
+  + ST ANDREWS:357
+  
+## Your Attendance \& Lab Feedback
+
+```{r, echo=FALSE, eval=FALSE, out.width='49%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics(c("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 5/pictures/QRcodeAtd_LB01.png",
+"/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 5/pictures/QRCode for Student Evaluation - Tutorials.jpg"))
+```
+
+```{r, echo=FALSE, eval=FALSE, out.width='49%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics(c("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 5/pictures/QRcodeAtd_LB02.png",
+"/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 5/pictures/QRCode for Student Evaluation - Tutorials.jpg"))
+```
+
+## Plan for LAB 5
+
++ Exercise: based on Stock \& Watson, E15.1
+
++ We will focus on *"Time series Regression"*
+
+
+# BRIEF REVIEW
+
+## Time Series Data - What it looks like…
+
+::: columns 
+
+:::: {.column width=.5}
+
+\vspace{7mm}
+
+\small 
+Time series data are data collected on the same observational unit
+at multiple time periods ($t$).
+
+\vspace{2mm}
+
+$$
+\begin{aligned}
+&\{y_{t}\}, \\
+&t = 1,\ldots, T
+\end{aligned}
+$$
+
+\vspace{2mm}
+Can be of any time frequency - daily, monthly, quarterly, annual, etc.\footnote[frame]{Typical resource: https://fred.stlouisfed.org/ \\}
+
+::::
+
+:::: column
+
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='right', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 5/pictures/TimeSeries-Example.png")
+```
+
+::::
+
+:::
+
+
+## [SN] Working with dates and times in STATA
+
+\centering Date types in Stata\footnote[frame]{See guideline at: https://www.stata.com/bookstore/dtguide.pdf \\}
+\vspace{0.6mm}
+\begin{table}[]
+\begin{tabular}{@{}lll@{}}
+\toprule
+\multicolumn{1}{c}{{\ul \textbf{Date type}}} & \multicolumn{1}{c}{{\ul \textbf{Format}}} & \multicolumn{1}{c}{{\ul \textbf{Unit}}} \\ \midrule
+Datetime       & {\textcolor{green}{\texttt{\%tc}}} & Milliseconds since {\textcolor{green}{01jan1960 00:00:00.000}} \\
+Daily date     & {\textcolor{green}{\texttt{\%td}}} & Days since {\textcolor{green}{01jan1960}}                     \\
+Weekly date    & {\textcolor{green}{\texttt{\%tw}}} & Weeks since {\textcolor{green}{1960w1}}                        \\
+Monthly date   & {\textcolor{green}{\texttt{\%tm}}} & Months since {\textcolor{green}{1960m1}}                       \\
+Quarterly date & {\textcolor{green}{\texttt{\%tq}}} & Quarters since {\textcolor{green}{1960q1}}                     \\ \bottomrule
+\end{tabular}
+\end{table}
+
+## [SN] Our Example
+
+```{r, echo=FALSE, out.width='100%', fig.show='hold', fig.align='left', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 5/pictures/S1-ImportExcelData.png")
+```
+
+## [SN] Creating dates and times in STATA
+
+(I) Option 1: Building dates and times from components.\footnote[frame]{See guideline at: https://www.stata.com/bookstore/dtguide.pdf \\}
+
+\begin{table}[]
+\begin{tabular}{@{}llll@{}}
+\toprule
+\multicolumn{1}{c}{{\ul \textbf{Date type}}} &
+  \multicolumn{1}{c}{{\ul \textbf{Format}}} &
+  \multicolumn{1}{c}{{\ul \textbf{Pseudofunction}}} &
+  \multicolumn{1}{c}{{\ul \textbf{Function}}} \\ \midrule
+Daily date     & {\textcolor{green}{\texttt{\%td}}} & td(day-month-year) & mdy(M, D, Y) \\
+Weekly date    & {\textcolor{green}{\texttt{\%tw}}} & tw(year-week)      & yw(Y, W)     \\
+Monthly date   & {\textcolor{green}{\texttt{\%tm}}} & tm(year-month)     & ym(Y, M)     \\
+Quarterly date & {\textcolor{green}{\texttt{\%tq}}} & tq(year-quarter)   & yq(Y, Q)     \\ \bottomrule
+\end{tabular}
+\end{table}
+
+## [SN] Our Example
+
+```{r, echo=FALSE, out.width='100%', fig.show='hold', fig.align='left', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 5/pictures/S2-GenDate-Opt1.png")
+```
+
+## [SN] Creating dates and times in STATA
+
+(II) Option 2: Converting dates and times from existing variables.\footnote[frame]{See guideline at: https://www.stata.com/bookstore/dtguide.pdf \\}
+
+
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 5/pictures/ConvertingDates.png")
+```
+
+## [SN] Our Example
+
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='left', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 5/pictures/S2-GenDate-Opt2.png")
+```
+
+```{r, echo=FALSE, out.width='70%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 5/pictures/S2-GenDate-compare.png")
+```
+
+## [SN] STATA command for Setting Data as Time Series 
+
+Once having the date variable in a *date format*, we need to declare our data as time series to use the time series operators in Stata.
+
+\small
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+*tsset datevar
+//choose suitable 'datevar' in the dataset
+```
+
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='left', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 5/pictures/S3-DeclareTimeSeries.png")
+```
+
+## [SN] STATA command for Visualizing Time Series Data
+
+\small
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+*[twoway] tsline varlist_of_inteterest
+```
+
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='left', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 5/pictures/S4-LineGraphExample-code.png")
+```
+
+```{r, echo=FALSE, out.width='70%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 5/pictures/S4-LineGraphExample.png")
+```
+
+## [SN] Subsetting tin/twithin in STATA
+
++ `tin` ("times in", from a to b) 
+
+\vspace{1mm}
+
++ `twithin` ("times within", between a and b, it excludes a and b).
+  
+## [SN] Time‐series operators in STATA
+
+\begin{table}[]
+Transforming a time‐series y
+\begin{tabular}{lll}
+& & \textbf{Stata}\\
+\multirow{3}{*}{\textbf{L operator}} & first \textit{lag} $y_{t‐1}$                              & \texttt{L{\color{lightgray}{1}}.y}  \\
+                            & 2‐period \textit{lag} $y_{t-2}$                                    & \texttt{L2.y}  \\
+                            & 3‐period \textit{lag} $y_{t-3}$                                    & \texttt{L3.y}  \\
+                            \\
+\multirow{3}{*}{\textbf{D operator}} & first \textit{difference} $\Delta y_t = y_t - y_{t-1}$ & \texttt{D{\color{lightgray}{1}}.y}  \\
+                            & double \textit{difference} $\Delta y_t - \Delta y_{t-1}$ & \texttt{D2.y}  \\
+                            & triple \textit{difference} $(\Delta y_t - \Delta y_{t-1}) - (\Delta y_{t-1} - \Delta y_{t-2})$ & \texttt{D3.y}  \\
+\end{tabular}
+\end{table}
+
+\vspace{3mm}
+
+The first difference of the logarithm of $y_t$ is $\Delta \text{ln}(y_t) = \text{ln}(y_t) - \text{ln}(y_{t-1})$ 
+$$
+\Delta \text{ln}(y_t) \approx \frac{\text{percentage change of time-series y between } t \text{ and } t-1}{100}
+$$
+\footnotesize \textcolor{gray}{(!) approximation is most accurate when the percentage change is small.}
+
+## Autocorrelation and Autocovariance {#Autocorr}
+<!-- \footnote[frame]{Population autocovariance (autocorrelation) can be estimated by sample autocovariance (autocorrelation).\\} -->
+
+
+The covariance between $y_t$ and its $j^{\text{th}}$ lag $y_{t-j}$ is called $\qquad \qquad \qquad \qquad$ the $j^{\text{th}}$ *autocovariance* of the series $y_t$\small
+$$
+{\color{red}{j^{\text{th}} \text{autocovariance}}} \equiv Cov(y_t,y_{t-j})
+$$
+
+\vspace{2mm}
+
+\normalsize The correlation between $y_t$ and its $j^{\text{th}}$ lag $y_{t-j}$ is called $\qquad \qquad \qquad \qquad$ the $j^{\text{th}}$ *autocorrelation coefficient*, aka *serial correlation coefficient*\small
+$$
+{\color{red}{j^{\text{th}} \text{autocorrelation}}} \equiv \rho_j = \rho_{y_t,y_{t-j}} = \frac{Cov(y_t,y_{t-j})}{\sqrt{Var(y_t)Var(y_{t-j})}} \in[-1,1]
+$$
+$\color{red}{\rightarrow}$ \textcolor{red}{Measure how dependent $y_t$ is on its past value $y_{t-j}$.}
+
+\vspace{2mm}
+
+\normalsize Autocorrelations of $y$ as a function of its lags $j$ is known as $\qquad \qquad \qquad \qquad$ the *autocorrelation function*.
+
+## [SN] Tabulate and Graph Autocorrelations in STATA
+
+Produce a table of the autocorrelations for a time series 
+\small
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+*corrgram yvar [, lags(p)]
+// limit the number of computed autocorrelations to p
+```
+\normalsize
+Plot the autocorrelation function for a time series (correlogram) with pointwise confidence intervals
+\small
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+*ac yvar [, lags(p)]
+// limit the number of computed autocorrelations to p
+```
+
+## [SN] STATA command for Autoregression Model {#ARmodel}
+
+The autoregressive model of order $p$ - $AR(p)$
+$$
+y_t = \beta_0 + \beta_1 y_{t-1} + \beta_2 y_{t-2} + \ldots + \beta_p y_{t-p} + \epsilon_t
+$$
+
+To regress $y_t$ against its own lagged values, run one of the followings
+\small
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+*regress yvar L1.yvar L2.yvar Lp.yvar [, robust]
+```
+
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+*regress yvar L(1/p).yvar [, robust]
+//'p' is the number of lags
+```
+
+## [SN] Forecasting in STATA
+
+Step1. Expanding the Dataset Before Forecasting
+
+\small
+Given a set of time‐series observations, STATA typically records the dates as running from the first until the last observation. 
+
+To forecast a date out‐of‐sample, these dates need to be in the data set, which requires expanding the dataset to include them.
+
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+*tsappend, add(k)
+//add 'k' dates to the end of the sample
+```
+\normalsize
+Step2. Point Forecasting Out‐of‐Sample
+
+\small
+To create a series of predicted values both in‐sample and out‐of‐sample, after the \textcolor{blue}{\texttt{regress}} command\small
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+*predict yvar_hat [if]
+//use 'if' condition to restrict the predicted values
+```
+## Unit Root Test {#ADFtest}
+
+<!-- A unit root is a feature of some stochastic processes (random processes). This stochastic process is a time series model where a single shock can have a persistent effect. This means that the impact of a single, random event can continue to influence the process indefinitely.The concept is closely tied to the idea of stationarity in a time series.  -->
+
++ Testing for unit roots/stochastic trend is a crucial step in time series analysis. The presence of a unit root in a time series signifies that the series is non-stationary, which can lead to spurious regressions and other potentially serious consequences if no further transformation is made.
+  + \textcolor{red}{$H_0:$ $y_t$ has a unit root ($y_t$ is non-stationary)}.
+  + $H_1:$ $y_t$ has no unit root ($y_t$ is stationary).
+
++ The Dickey–Fuller test involves fitting the model
+$$
+y_t = \beta_0 + \rho y_{t-1} + \delta t + u_t
+$$
+and test \textcolor{red}{$H_0: \rho = 1$}, or, equivalently, that $y_t$ follows a unit root process.
+
++ To control for serial correlation issue, the augmented Dickey–Fuller (ADF) test instead fits
+$$
+\Delta y_t =  \beta_0 + \delta y_{t-1} + \alpha t + \gamma_1\Delta y_{t-1} + \ldots + \gamma_k\Delta y_{t-k} + \epsilon_t
+$$
+and test \textcolor{red}{$H_0: \delta = 0$}.
+
+\qquad\footnotesize \underline{Note}: Possible restrictions: $\beta_0 = 0$ (without drift); $\alpha =0$ (no trend term).
+
+## [SN] ADF Test for Unit Roots in STATA
+
+Augmented Dickey–Fuller test using `tsset` data
+\small
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+* dfuller yvar 
+```
+
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+* dfuller yvar, trend
+// include trend term
+```
+
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+* dfuller yvar, lags(k) regress
+// include 'k' lagged differences and display the regression table
+```
+
+# Excercise: based on Stock \& Watson, E15.1
+
+## Picture the Scenario
+
++ **Objective:** Construct forecasting models for the rate of inflation.
+
+\vspace{0.8mm}
+
++ **Dataset:** \texttt{us\_macro\_quaterly.xlsx}.
+  + contains quarterly data on several macroeconomic series for the US.
+  + use the sample period $1963:Q1-2017:Q4$.(where data before 1963 may be used, as necessary, as initial values for lags in regressions)
+
+\vspace{0.8mm}
+
++ **Key variables:** For each country in each year
+  + `PCEPI`: the price index for personal consumption expenditures from the U.S. National Income and Product Accounts.
+
+## Questions 
+
+### (a)
+
+i. Compute the inflation rate, $Infl = 400 \times [ln(PCEPI_t) - ln(PCEPI_{t-1})]$.
+   What are the units of `Infl`?
+   
+ii. Plot the values of `Infl` from 1963:Q1 through 2017:Q4. Based on the plot, do you think that `Infl`  has a stochastic trend? Explain.
+
+\vspace{1mm}
+
+### (b) Autocorrelations \footnotesize[(>>review)](#Autocorr) \normalsize
+
+i. Compute the first four autocorrelations of $\Delta Infl$.
+
+ii. Plot the value of $\Delta Infl$ from 1963:Q1 through 2017:Q4. The plot should look choppy or jagged. Explain why this behaviour is consistent with the first autocorrelation that you computed in (i.).
+
+## Questions 
+
+### (c) Autoregression Model \footnotesize[(>>review)](#ARmodel) \normalsize
+
+i. Run an OLS regression of $\Delta Infl_t$ on $\Delta Infl_{t-1}$. Does knowing the change in inflation over the current quarter help predict the change in inflation over the next quarter? Explain.
+
+\vspace{0.8mm}
+
+ii. Estimate an $AR(2)$ model of $\Delta Infl_t$ . Is the $AR(2)$ model better than the $AR(1)$ model? Explain.
+
+\vspace{0.8mm}
+
+iii. Use the $AR(2)$ model to predict the change in inflation from 2017:Q4 to 2018:Q1 - that is, to predict the value of $\Delta Infl_{2018:Q1}$.
+
+## Questions 
+
+### (d) ADF test \footnotesize[(>>review)](#ADFtest) \normalsize
+
+i. Use the ADF test for $AR(p)$ regression
+$$
+\Delta Y_t = \beta_0 + \delta Y_{t-1} + \gamma_1 \Delta Y_{t-1} +\ldots +\gamma_p \Delta Y_{t-p+1} + u_t
+$$
+using $2$ lags of $\Delta Infl$ (so that $p = 3$ in the above equation) to test for a stochastic trend in $Infl$.
+
+\vspace{0.8mm}
+
+ii. Is that ADF test based on the above regression preferred to the regression including a determinstic trend
+$$
+\Delta Y_t = \beta_0 + \alpha t + \delta Y_{t-1} + \ldots + \gamma_p \Delta Y_{t-p+1} + u_t 
+$$
+for testing for a stochastic trend in $Infl$? Explain.
+
+\vspace{0.8mm}
+
+iii. Based on the ADF tests carried out, does the AR model for $Infl$ contain a unit root?
+
+
+## (a-i) Compute the inflation rate `Infl`. What is its unit? {#Plot-infl-A1}
+
+\footnotesize [(>>stata)](#Plot-infl) \normalsize
+
+$$
+Infl = 400 \times [ln(PCEPI_t) - ln(PCEPI_{t-1})]
+$$
+
+`Infl` is measured in percentage points at annual rate.
+   
+## (a-ii) Plot values of `Infl` from 1963:Q1 through 2017:Q4. Do you think that `Infl`  has a stochastic trend? {#Plot-infl-A2}
+
+```{r, echo=FALSE, out.width='85%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 5/pictures/Fig1-InflationRate.png")
+```
+
+\footnotesize Inflation increased over the 20-year period 1960-1980, then declined for a decade and has been reasonably stable since then. It appears to have a stochastic trend. \footnotesize [(>>stata)](#Plot-infl)
+
+## (b-i) Compute the first four autocorrelations of $\Delta Infl$.
+
+\small
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+*corrgram yvar [, lags(p)]
+// limit the number of computed autocorrelations to p
+```
+
+```{r, echo=FALSE, out.width='100%', fig.show='hold', fig.align='left', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 5/pictures/(b-i)corrgram.png")
+```
+
+The first four autocorrelations are (rounded to 2 decimal places): $\qquad \qquad \qquad \qquad$
+$-0.25$, $-0.20$, $0.14$, and $-0.08$.
+
+
+## {-}
+\small
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+*ac yvar [, lags(p)]
+// limit the number of computed autocorrelations to p
+```
+
+```{r, echo=FALSE, out.width='100%', fig.show='hold', fig.align='left', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 5/pictures/(b-i)ac.png")
+```
+
+```{r, echo=FALSE, out.width='70%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 5/pictures/AutocorrelationGraph.png")
+```
+
+## (b-ii) Plot values of $\Delta Infl$ from 1963:Q1 through 2017:Q4. {#Plot-deltainfl-A}
+
+```{r, echo=FALSE, out.width='85%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 5/pictures/Fig2-ChangeInflationRate.png")
+```
+
+\footnotesize The change in inflation is slightly negatively serially correlated (the first autocorrelation is $\hat\rho_1 = -0.25$) so that values above the mean tend to be followed by values below the mean. \footnotesize [(>>stata)](#Plot-deltainfl) 
+
+## (c-i) Run an OLS regression of $\Delta Infl_t$ on $\Delta Infl_{t-1}$.
+
+Autoregressive model of order one - AR(1)
+$$
+\Delta Infl_t = \beta_0 + \beta_1 \cdot \Delta Infl_{t-1} + \epsilon_t
+$$
+
+
+## (c-i) Run an OLS regression of $\Delta Infl_t$ on $\Delta Infl_{t-1}$.
+
+\small
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+*regress yvar L1.yvar [, robust]
+```
+
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='left', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 5/pictures/(c-i)AR1.png")
+```
+
+
+## (c-i) Run an OLS regression of $\Delta Infl_t$ on $\Delta Infl_{t-1}$. Does knowing the change in inflation over the current quarter \quad help predict the change in inflation over the next quarter? {#AR1-A}
+
+Autoregressive model of order one - AR(1)
+$$
+\Delta Infl_t = \beta_0 + \beta_1 \cdot \Delta Infl_{t-1} + \epsilon_t
+$$
+
+OLS estimation results \footnotesize [(>>stata)](#AR1) \normalsize
+$$
+\underset{(se)}{\widehat{\Delta Infl_t}} = \underset{(0.096)}{0.007} -  \underset{(0.068)}{0.247} \cdot \Delta Infl_{t-1}, \qquad R^2=0.061
+$$
+
++ The coefficient on lagged inflation is statistically significant, so that lagged inflation helps predict current inflation.
+
+## (c-ii) Estimate an $AR(2)$ model of $\Delta Infl_t$. Is the $AR(2)$ model better than the $AR(1)$ model? {#AR2-A}
+
+AR(2) model 
+$$
+\Delta Infl_t = \beta_0 + \beta_1 \cdot \Delta Infl_{t-1} + \beta_2 \cdot \Delta Infl_{t-2} +\epsilon_t
+$$
+
+\pause
+
+OLS estimation results \footnotesize [(>>stata)](#AR2) \normalsize
+$$
+\underset{(se)}{\widehat{\Delta Infl_t}} = \underset{(0.093)}{0.006} -  \underset{(0.064)}{0.138} \cdot \Delta Infl_{t-1} - \underset{(0.076)}{0.284} \cdot \Delta Infl_{t-2},\qquad \text{Adj-}R^2=0.128
+$$
+
++ The estimated coefficient on $\Delta Infl_{t-2}$ is statistically significant, so the AR(2) model is preferred to the
+AR(1) model. 
++ Note also that adjusted R-squared increases from 0.061 in the AR(1) model to 0.128 in the AR(2) model, showing better goodness-of-fit.
+
+## (c-iii) Use the $AR(2)$ model to predict change in inflation from 2017:Q4 to 2018:Q1 - that is, value of $\Delta Infl_{2018:Q1}$.
+
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='left', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 5/pictures/(ciii)forecasting.png")
+```
+
+## (c-iii) Use the $AR(2)$ model to predict change in inflation from 2017:Q4 to 2018:Q1 - that is, value of $\Delta Infl_{2018:Q1}$. {#Plot-forecasting-A}
+```{r, echo=FALSE, out.width='85%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 5/pictures/Fig3-ForecastChangeInflationRate.png")
+```
+\footnotesize The predicted change in inflation from 2017Q4 to 2018Q1 is $\mathbf{-0.72}$ (a drop).\footnotesize [(>>stata)](#Plot-forecasting)
+
+## (d-i) Use the ADF test for $AR(p)$ regression using $2$ lags of $\Delta Infl$ (so that $p = 3$ in the above equation) to test for a stochastic trend in $Infl$.
+
+$$
+\Delta Y_t = \beta_0 + \delta Y_{t-1} + \gamma_1 \Delta Y_{t-1} +\ldots +\gamma_p \Delta Y_{t-p+1} + u_t
+$$
+
+$$
+\Delta Infl_t = \beta_0 + \delta Infl_{t-1} + \gamma_1 \Delta Infl_{t-1} + \gamma_2 \Delta Infl_{t-2} + u_t
+$$
+
+## {}
+\small
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+* dfuller yvar, lags(k) regress
+// include 'k' lagged differences and display the regression table
+```
+
+```{r, echo=FALSE, out.width='70%', fig.show='hold', fig.align='left', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 5/pictures/(d-i)ADFtest-stochastic.png")
+```
+
+## (d-i) Use the ADF test for $AR(p)$ regression using $2$ lags of $\Delta Infl$ (so that $p = 3$ in the above equation) to test for a stochastic trend in $Infl$.
+
+The ADF t-statistic is $-2.74$. The $10\%$ critical vale is $-2.57$ and the $5\%$ critical value of $-2.88$; thus the unit root null hypothesis can be rejected at the $10\%$ but not the $5\%$ significance level.
+
+## (d-ii) Is that ADF test based on the above regression preferred to the regression including a determinstic trend for testing for a stochastic trend in $Infl$?
+
+$$
+\Delta Y_t = \beta_0 + \alpha t + \delta Y_{t-1} + \gamma_1\Delta Y_{t-1} + \ldots + \gamma_p \Delta Y_{t-p+1} + u_t 
+$$
+
+$$
+\Delta Infl_t = \beta_0 + \alpha t + \delta Infl_{t-1} + \gamma_1\Delta Infl_{t-1} + \gamma_2\Delta Infl_{t-2} + u_t 
+$$
+
+
+## {}
+
+\small
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+* dfuller yvar, lags(k) trend regress
+// include 'k' lagged differences and trend term
+```
+
+```{r, echo=FALSE, out.width='70%', fig.show='hold', fig.align='left', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 5/pictures/(d-ii)ADFtest-deterministic.png")
+```
+
+## (d-ii) Is that ADF test based on the above regression preferred to the regression including a determinstic trend for testing for a stochastic trend in $Infl$?
+
++ Based on the t-statistic and the critical values, the results are similar to the previous regression.
+
++ The coefficient on trend is quite close to zero so the inflation rate does not exhibit a linear trend. Thus, the specification that includes an intercept, but no time trend is appropriate. 
+
+## (d-iii) Based on the ADF tests carried out, does the AR model for $Infl$ contain a unit root?
+
+$$
+\underset{(se)}{\widehat{\Delta Infl_t}} = \underset{(.158)}{.359} -\underset{(.039)}{.106} Infl_{t-1} -\underset{(.068)}{.254} \Delta Infl_{t-1} -\underset{(.066)}{.242}\Delta Infl_{t-2} 
+$$
+
+From the results in (d-i), it is clear that inflation contains a unit root, thereby being highly persistent. The null hypothesis that $\delta=0$ or, equivalently, $\rho = 1.0$ cannot be rejected at the $5\%$ significance level.
+
+# STATA CODES \& RESULTS
+
+## Q(a-i,ii)  \footnotesize [(>>back(a-i))](#Plot-infl-A1) [(>>back(a-ii))](#Plot-infl-A2) \normalsize {#Plot-infl}
+```{r, echo=FALSE, out.width='65%', fig.show='hold', fig.align='left', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 5/pictures/(a-i)infl.png")
+```
+
+\vspace{3mm}
+
+```{r, echo=FALSE, out.width='100%', fig.show='hold', fig.align='left', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 5/pictures/(a-ii)Plot-infl.png")
+``` 
+
+## Q(b-i,ii) \footnotesize [(>>back(b-ii))](#Plot-infl-A) \normalsize {#Plot-deltainfl}
+
+```{r, echo=FALSE, out.width='80%', fig.show='hold', fig.align='left', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 5/pictures/(b-i)deltainfl.png")
+```
+
+\vspace{3mm}
+
+```{r, echo=FALSE, out.width='100%', fig.show='hold', fig.align='left', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 5/pictures/(b-iii)Plot-deltainfl.png")
+``` 
+
+## Q(b-i)
+\small
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+*corrgram yvar [, lags(p)]
+// limit the number of computed autocorrelations to p
+```
+
+```{r, echo=FALSE, out.width='100%', fig.show='hold', fig.align='left', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 5/pictures/(b-i)corrgram.png")
+```
+
+\small
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+*ac yvar [, lags(p)]
+// limit the number of computed autocorrelations to p
+```
+
+```{r, echo=FALSE, out.width='100%', fig.show='hold', fig.align='left', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 5/pictures/(b-i)ac.png")
+```
+
+## Q(c-i) \footnotesize [(>>back(c-i))](#AR1-A) \normalsize {#AR1}
+
+\small
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+*regress yvar L1.yvar [, robust]
+```
+
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='left', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 5/pictures/(c-i)AR1.png")
+```
+
+## Q(c-ii) \footnotesize [(>>back(c-ii))](#AR12-A) \normalsize {#AR2}
+
+\small
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
+*regress yvar L1.yvar L2.yvar [, robust]
+```
+
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='left', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 5/pictures/(c-ii)AR2.png")
+```
+
+## Q(c-iii-I)
+
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='left', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 5/pictures/(ciii)forecasting.png")
+```
+
+## Q(c-iii-II) \footnotesize [(>>back(c-iii))](#Plot-forecasting-A) \normalsize {#Plot-forecasting}
+
+```{r, echo=FALSE, out.width='90%', fig.show='hold', fig.align='left', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 5/pictures/(c-iii)Plot-forecasting.png")
+```
+
+## Q(d-i) \footnotesize [(>>back(d-i))](#ADFtest-stochastic-A) \normalsize {#ADFtest-stochastic}
+
+```{r, echo=FALSE, out.width='70%', fig.show='hold', fig.align='left', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 5/pictures/(d-i)ADFtest-stochastic.png")
+```
+
+## Q(d-ii) \footnotesize [(>>back(d-ii))](#ADFtest-deterministic-A) \normalsize {#ADFtest-deterministic}
+
+```{r, echo=FALSE, out.width='70%', fig.show='hold', fig.align='left', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 5/pictures/(d-ii)ADFtest-deterministic.png")
+```
+
