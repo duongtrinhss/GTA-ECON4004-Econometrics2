@@ -1,0 +1,264 @@
+---
+title: "On Unit Root Test (cont.)"
+author: "Duong Trinh"
+date: "March 2024"
+output: pdf_document
+---
+
+```{r, setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(knitr.table.format = function() {
+  if (knitr::is_latex_output()) 'latex' else 'pandoc'
+})
+```
+
+```{r, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, results='hide'}
+# install.packages("Statamarkdown")
+library(Statamarkdown)
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(ggplot2)
+library(tidyverse)
+```
+
+
+# Plot values of `Infl` from 1963:Q1 through 2017:Q4. Do you think that `Infl`  has a stochastic trend? {-}
+
+```{r, echo=FALSE, out.width='85%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 5/pictures/Fig1-InflationRate.png")
+```
+
+# Several possible time series {-}
+
+## DGP(1): Nonstationary series {-}
+
+### DGP(1a): Random walk without drift {-}
+$$
+y_t = y_{t-1} + \epsilon_t; \quad \epsilon_t \sim N(0,1)
+$$
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE,  out.width='70%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+GenrDataRW <- function(T){
+  eps <- rnorm(T)
+  t <- seq.int(1, T)
+  y0 <- rep(0,T)
+
+  for (i in t[-1]) {
+    y0[i] <- y0[i-1] + eps[i]
+  }
+  return(data_frame(t=t,y=y0))
+}
+
+# Generate three realizations 
+T <- 252
+set.seed(208)
+r1 <- GenrDataRW(T)
+r2 <- GenrDataRW(T)
+r3 <- GenrDataRW(T)
+
+#Combine the data frames
+df <- rbind(transform(r1, series = "1"),
+                   transform(r2, series = "2"),
+                   transform(r3, series = "3"))
+
+df %>% dplyr::filter(t>32) %>%  ggplot(aes(t,y,color = series)) +
+  geom_line() +
+  geom_hline(yintercept=0, linetype="dashed") +
+  theme_bw() +
+  theme(aspect.ratio = 0.4,
+        legend.position = "bottom")
+```
+
+
+### DGP(1b): Random walk with a drift {-}
+$$
+y_t = 0.2 + y_{t-1} + \epsilon_t,\quad \epsilon_t \sim N(0,1)
+$$
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE,  out.width='70%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+GenrDataRW <- function(T){
+  eps <- rnorm(T)
+  t <- seq.int(1, T)
+  y0 <- rep(0,T)
+  drift <- 0.2
+
+  for (i in t[-1]) {
+    y0[i] <- drift  + y0[i-1] + eps[i]
+  }
+  return(data_frame(t=t,y=y0))
+}
+
+# Generate three realizations 
+T <- 252
+set.seed(208)
+r1 <- GenrDataRW(T)
+r2 <- GenrDataRW(T)
+r3 <- GenrDataRW(T)
+
+#Combine the data frames
+df <- rbind(transform(r1, series = "1"),
+                   transform(r2, series = "2"),
+                   transform(r3, series = "3"))
+
+df %>% dplyr::filter(t>32) %>%  ggplot(aes(t,y,color = series)) +
+  geom_line() +
+  geom_hline(yintercept=0, linetype="dashed") +
+  theme_bw() +
+  theme(aspect.ratio = 0.4,
+        legend.position = "bottom")
+```
+
+### DGP(1c): Random walk with a trend term
+$$
+y_t = 0.001 \cdot t + y_{t-1} + \epsilon_t; \quad \epsilon_t \sim N(0,1)
+$$
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE,  out.width='70%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+GenrDataRW <- function(T){
+  eps <- rnorm(T)
+  t <- seq.int(1, T)
+  y0 <- rep(0,T)
+  drift <- 0.2
+
+  for (i in t[-1]) {
+    y0[i] <- 0.001*t[i] + y0[i-1] + eps[i]
+  }
+  return(data_frame(t=t,y=y0))
+}
+
+# Generate three realizations 
+T <- 252
+set.seed(208)
+r1 <- GenrDataRW(T)
+r2 <- GenrDataRW(T)
+r3 <- GenrDataRW(T)
+
+#Combine the data frames
+df <- rbind(transform(r1, series = "1"),
+                   transform(r2, series = "2"),
+                   transform(r3, series = "3"))
+
+df %>% dplyr::filter(t>32) %>%  ggplot(aes(t,y,color = series)) +
+  geom_line() +
+  geom_hline(yintercept=0, linetype="dashed") +
+  theme_bw() +
+  theme(aspect.ratio = 0.4,
+        legend.position = "bottom")
+```
+
+### DGP(1d): Random walk with a drift and a trend 
+$$
+y_t = 0.2 + 0.001 \cdot t + y_{t-1} + \epsilon_t; \quad \epsilon_t \sim N(0,1)
+$$
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE,  out.width='70%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+GenrDataRW <- function(T){
+  eps <- rnorm(T)
+  t <- seq.int(1, T)
+  y0 <- rep(0,T)
+  drift <- 0.2
+
+  for (i in t[-1]) {
+    y0[i] <- drift  + 0.001*t[i] + y0[i-1] + eps[i]
+  }
+  return(data_frame(t=t,y=y0))
+}
+
+# Generate three realizations 
+T <- 252
+set.seed(208)
+r1 <- GenrDataRW(T)
+r2 <- GenrDataRW(T)
+r3 <- GenrDataRW(T)
+
+#Combine the data frames
+df <- rbind(transform(r1, series = "1"),
+                   transform(r2, series = "2"),
+                   transform(r3, series = "3"))
+
+df %>% dplyr::filter(t>32) %>%  ggplot(aes(t,y,color = series)) +
+  geom_line() +
+  geom_hline(yintercept=0, linetype="dashed") +
+  theme_bw() +
+  theme(aspect.ratio = 0.4,
+        legend.position = "bottom")
+```
+
+## DGP(2): Stationary series {-}
+
+### DGP(2a): Stationary AR(1) {-}
+
+$$
+y_t = 0.4 \cdot y_{t-1} + \epsilon_t; \quad \epsilon_t \sim N(0,1)
+$$
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE,  out.width='70%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+GenrDataRW <- function(T){
+  eps <- rnorm(T)
+  t <- seq.int(1, T)
+  y0 <- rep(0,T)
+
+  for (i in t[-1]) {
+    y0[i] <- 0.4*y0[i-1] + eps[i]
+  }
+  return(data_frame(t=t,y=y0))
+}
+
+# Generate three realizations 
+T <- 252
+set.seed(208)
+r1 <- GenrDataRW(T)
+r2 <- GenrDataRW(T)
+r3 <- GenrDataRW(T)
+
+#Combine the data frames
+df <- rbind(transform(r1, series = "1"),
+                   transform(r2, series = "2"),
+                   transform(r3, series = "3"))
+
+df %>% dplyr::filter(t>32) %>%  ggplot(aes(t,y,color = series)) +
+  geom_line() +
+  geom_hline(yintercept=0, linetype="dashed") +
+  theme_bw() +
+  theme(aspect.ratio = 0.4,
+        legend.position = "bottom")
+```
+### DGP(2b): Stationary AR(1) with a deterministic trend {-}
+
+$$
+y_t =  0.02 \cdot t + 0.4 \cdot y_{t-1} + \epsilon_t; \quad \epsilon_t \sim N(0,1)
+$$
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE,  out.width='70%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+GenrDataRW <- function(T){
+  eps <- rnorm(T)
+  t <- seq.int(1, T)
+  y0 <- rep(0,T)
+
+  for (i in t[-1]) {
+    y0[i] <-  0.02*t[i] + 0.4*y0[i-1] + eps[i]
+  }
+  return(data_frame(t=t,y=y0))
+}
+
+# Generate three realizations 
+T <- 252
+set.seed(208)
+r1 <- GenrDataRW(T)
+r2 <- GenrDataRW(T)
+r3 <- GenrDataRW(T)
+
+#Combine the data frames
+df <- rbind(transform(r1, series = "1"),
+                   transform(r2, series = "2"),
+                   transform(r3, series = "3"))
+
+df %>% dplyr::filter(t>32) %>%  ggplot(aes(t,y,color = series)) +
+  geom_line() +
+  geom_hline(yintercept=0, linetype="dashed") +
+  theme_bw() +
+  theme(aspect.ratio = 0.4,
+        legend.position = "bottom")
+```
