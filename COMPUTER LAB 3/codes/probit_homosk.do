@@ -12,17 +12,18 @@ program define mkdata
         generate x1    = rchi2(1)-1
         generate x2    = int(4*rbeta(5,2))
         generate x3    = rchi2(1)-1
-        generate sg    = exp(.3*(x1 -1.x2 + 2.x2 - 3.x2 + x3))
+//         generate sg    = exp(.3*(x1 -1.x2 + 2.x2 - 3.x2 + x3))
+		generate sg    = 1
         generate e     = rnormal(0 , sg)
         generate xb    = .5*(1 - x1 - 1.x2 + 2.x2 - 3.x2 + x3)
         generate y     =  xb + e > 0
  
-        generate m1  = normalden(xb/sg)*((-.5 -.3*xb)/sg)
-        generate m3  = normalden(xb/sg)*((.5 -.3*xb)/sg)
-        generate m21 = normal(.5*(-x1 + x3)/exp(.3*(x1 -1 + x3)))       ///
-                   - normal(.5*(1 -x1 + x3)/exp(.3*(x1 + x3)))
-        generate m22 = normal(.5*(2-x1 + x3)/exp(.3*(x1 + 1 + x3)))     ///
-                                  -normal(.5*(1 -x1 + x3)/exp(.3*(x1+ x3)))
+        generate m1  = normalden(xb)*(-.5)
+        generate m3  = normalden(xb)*(.5)
+        generate m21 = normal(.5*(-x1 + x3))       ///
+                   - normal(.5*(1 -x1 + x3))
+        generate m22 = normal(.5*(2-x1 + x3))     ///
+                                  -normal(.5*(1 -x1 + x3))
         generate m23 = m21
 end
 
@@ -45,7 +46,7 @@ display `m22'
 display `m23'
 
 postfile sims est hm1 hm1_r hm21 hm21_r hm22 hm22_r hm23 hm23_r hm3 hm3_r  ///
-         rc cv using hetprobit, replace
+         rc cv using homoskprobit, replace
  
 forvalues i=1/`R' {
         quietly {
@@ -211,7 +212,7 @@ forvalues i=1/`R' {
     }
 }
 postclose sims
-use hetprobit, clear
+use homoskprobit, clear
 label define est 1 "probit" 2 "probit-robust" 3 "hetprobit" 4 "LPM" 5 "LPM-robust"
 label values est est
 bysort est: summarize

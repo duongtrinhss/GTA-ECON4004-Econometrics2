@@ -1,6 +1,126 @@
+---
+title: "On Binary Outcome models with Heteroscedasticity"
+author: "Duong Trinh"
+date: "March 2024"
+output:
+  bookdown::pdf_document2:
+    toc: no
+    number_sections: yes
+    extra_dependencies:
+    - mathtools
+    - bbm
+    number_figures: yes
+    fig_caption: yes
+  pdf_document:
+    toc: no
+  bookdown::html_document2:
+    toc: no
+    df_print: paged
+geometry: left = 2.5cm, right = 2cm, top = 2cm, bottom = 2cm
+linestretch: 1.15
+header-includes:
+- \usepackage{float}
+- \usepackage{booktabs}
+- \usepackage{longtable}
+- \newcommand\sbullet[1][.5]{\mathbin{\vcenter{\hbox{\scalebox{#1}{$\bullet$}}}}}
+---
+
+```{r, setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(knitr.table.format = function() {
+  if (knitr::is_latex_output()) 'latex' else 'pandoc'
+})
+```
+
+```{r, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, results='hide'}
+# install.packages("Statamarkdown")
+library(Statamarkdown)
+```
+
+
+# Introduction
+
+When implementing Probit Regression, I found in the solution and Stata do-file, the option <robust> is added in the <probit> command most of the time to report “robust” standard errors (SEs). From my understanding, it isn’t advantageous or even being misinterpreted, in contrast to the case of a linear regression model estimated by OLS:
+
++ For a standard linear model, when the errors are heteroscedastic, OLS coefficient estimators remain unbiased and consistent. Heteroscedasticity-robust standard errors (White’s sandwich formula, produced by <robust> option in Stata) are valid whether the errors are heteroscedastic or even homoscedastic. We use them as a good practice to obtain reliable tests. This concept was introduced and emphasized in ECON4003.
+
++ For binary dependent variable models, we assume a functional form of the likelihood and estimate using MLE. The standard Probit model relies on homoscedastic errors and if this specification is correct, all estimators for coefficients, covariance matrix, and marginal effects are consistent. In this case, using <probit> command in Stata with default standard errors is good enough, and <robust> option isn’t required.  In the presence of heteroscedasticity (in true DGP), the MLE estimators of the above parameters are biased and inconsistent unless the likelihood function is modified to correctly account for the form of heteroscedasticity. The use of White’s robust SEs for standard Probit doesn’t help address this misspecification problem, as we would be consistently estimating SEs of inconsistent parameters. Thus, it might be better to opt for <hetprobit> command in Stata instead.
+
++ My concern here is invoked by a short note in [Cameron, A. C., & Trivedi, P. K. (2010). Microeconometrics using stata (Vol. 2). College Station, TX: Stata press.](https://eur03.safelinks.protection.outlook.com/?url=https%3A%2F%2Fcameron.econ.ucdavis.edu%2Fmusbook%2Fmus.html&data=05%7C02%7CDuong.Trinh%40glasgow.ac.uk%7Ccf5f2a9ff89148c2873f08dc3dcebd3d%7C6e725c29763a4f5081f22e254f0133c8%7C1%7C0%7C638453205335386503%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C0%7C%7C%7C&sdata=MHxh8OATxHGHTmZSgVhFVjNprKsp%2BILv%2BQTpkIIvs%2F0%3D&reserved=0), with the screenshot in attachment. 
+
+```{r, echo=FALSE, out.width='70%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/pictures/Cameron,Trivedi-p448.jpeg")
+```
+
++ Inspired by [simulation exercise](https://blog.stata.com/2016/08/30/two-faces-of-misspecification-in-maximum-likelihood-heteroskedasticity-and-robust-standard-errors/) by Enrique Pinzon, I conduct extra simulations to justify these ideas.
+
+# Simulation results 
+
+## DGP 1: Probit & Homokedasticity {-}
+
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(haven)
+homoskprobit <- read_stata("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/codes/homoskprobit.dta")
+homoskprobit$est <- as.factor(homoskprobit$est)
+homoskprobit2 <- gather(homoskprobit,Metric,Value,-c("est"))
+homoskprobit2 %>% group_by(est,Metric) %>%
+  summarise(mean = mean(Value)) %>%
+  spread(.,est,-est) %>%
+  dplyr::filter(!(Metric %in% c("cv","rc"))) %>% 
+  mutate(true_value = c(-.138,NA,-.153,NA,.129,NA,-.153,NA,.138,NA),
+         Metric = factor(Metric, labels = c("AME of x1","5% Rejection Rate x1", "ATE of x21", "5% Rejection Rate x21", "ATE of x22", "5% Rejection Rate x22", "ATE of x23", "5% Rejection Rate x23", "AME of x3", "5% Rejection Rate x3"))) %>%
+  mutate_if(is.numeric, format, digits=2) %>% 
+  `colnames<-`(c("Statistic","Probit","Probit,robust","Hetprobit","LMP","LMP,robust", "Approx True Value")) %>% 
+  kableExtra::kable()
+```
+
+## DGP 2: Probit & Heterokedasticity {-}
+
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
+hetprobit <- read_stata("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/codes/hetprobit.dta")
+
+hetprobit$est <- as.factor(hetprobit$est)
+
+hetprobit2 <- gather(hetprobit,Metric,Value,-c("est"))
+
+hetprobit2 %>% group_by(est,Metric) %>%
+  summarise(mean = mean(Value,na.rm = TRUE)) %>%
+  spread(.,est,-est) %>%
+  dplyr::filter(!(Metric %in% c("cv","rc"))) %>% 
+  mutate(true_value = c(-.210,NA,-.190,NA,.082,NA,-.190,NA,.166,NA),
+         Metric = factor(Metric, labels = c("AME of x1","5% Rejection Rate x1", "ATE of x21", "5% Rejection Rate x21", "ATE of x22", "5% Rejection Rate x22", "ATE of x23", "5% Rejection Rate x23", "AME of x3", "5% Rejection Rate x3"))) %>%
+  mutate_if(is.numeric, format, digits=2) %>% 
+  `colnames<-`(c("Statistic","Probit","Probit,robust","Hetprobit","LMP","LMP,robust", "Approx True Value")) %>% 
+  kableExtra::kable()
+```
+
+## DGP 3: Linear model & Heterokedasticity {-}
+
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
+hetLRsim <- read_stata("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 3/data/hetLR_sim.dta")
+hetLRsim$vce <- as.factor(hetLRsim$vce)
+hetLRsim <-  gather(hetLRsim,Metric,Value,-c("vce"))
+hetLRsim %>% group_by(vce,Metric) %>%
+  summarise(mean = mean(Value,na.rm = TRUE)) %>%
+  spread(.,vce,-vce) %>% 
+  mutate_if(is.numeric, format, digits=4) %>% 
+  kableExtra::kable()
+```
+
+# Discussion
+
++ [S] Having said that, I am not convinced that heteroskedastic probit will solve model mis-specification issues. The variance to an extent but mean specification remains. But, yes it is preferrable to standard probit regression.
+
+<!-- Regarding heteroskedasticity in probit models, I agree with what you say. But, going the hetprobit route will mean that I will have to teach them about modelling the likelihood function augmented with an exponential functional form for the variance part. This is not trivial for UG students who have trouble understanding the difference between a likelihood and a pdf.  Maybe a few students will keep up but the majority will not. There is a big cost in advancing the technical part of the course. Using the robust command means that there is some consistency in the commands that they are familiar with even if it is not the most appropriate one. -->
+
+
+# Codes 
+
+```{stata, eval=FALSE, fig.show='hold', fig.align='center', fig.pos = 'H'}
 clear all
 local L = 10000000
-local R = 2000
+local R = 200
 local N = 10000
 set seed 222
 
@@ -215,3 +335,6 @@ use hetprobit, clear
 label define est 1 "probit" 2 "probit-robust" 3 "hetprobit" 4 "LPM" 5 "LPM-robust"
 label values est est
 bysort est: summarize
+```
+
+
