@@ -1,0 +1,110 @@
+---
+title: "ECON4004 Lab 2: A Note on Interaction Effects"
+# author: "Duong Trinh"
+date: "Feb 2024"
+output:
+  bookdown::pdf_document2:
+    toc: no
+    number_sections: yes
+    extra_dependencies:
+    - mathtools
+    - bbm
+    number_figures: yes
+    fig_caption: yes
+  pdf_document:
+    toc: no
+  bookdown::html_document2:
+    toc: no
+    df_print: paged
+geometry: left = 2.5cm, right = 2cm, top = 2cm, bottom = 2cm
+linestretch: 1.15
+header-includes:
+- \usepackage{float}
+- \usepackage{booktabs}
+- \usepackage{longtable}
+- \newcommand\sbullet[1][.5]{\mathbin{\vcenter{\hbox{\scalebox{#1}{$\bullet$}}}}}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Exercise 2: based on Stock and Watson, E13.1 {-}
+
+<!-- + **Objective:** Examine Labor Market Discrimination: Are Emily and Greg More Employable Than Lakisha and Jamal? -->
+
+<!-- + **Dataset:** \texttt{Names.dta} -->
+<!--   + Experimental data from research on US labor market. -->
+
++ **Key variables:**
+  + `call_back`: callback rate, measured by fraction of resumes that generate a phone call from prospective employer.
+  + `black`: $= 1$ for "African American–sounding name" resumes, $= 0$ for "white-sounding name" resumes.
+  + `female`: $= 1$ for women, $= 0$ for men.
+  + `high`: $= 1$ for high-quality resumes, $= 0$ for low-quality resumes.
+
+## Quesion 2(c) Is there a significant difference in this high-quality/low-quality difference for whites versus African Americans? {-}
+
+**Model specification** \textcolor{red}{\textit{(implied by the current solution)}}
+
+$$
+call\_back_i = \beta_0 + \beta_1\cdot black_i + \beta_2 \cdot high_i + \beta_3 \cdot black_i \times high_i+ u_i
+$$
+\small
+$$
+\begin{aligned}
+E[call\_back \mid high = 1, black = 1] &= \beta_0 + \beta_1 + \beta_2 + \beta_3 \rightarrow \text{for high-quality blacks}\\
+E[call\_back \mid high = 0, black = 1] &= \beta_0 + \beta_1 \rightarrow \text{for low-quality blacks}\\
+\Delta^{HvL}_{black = 1} &= \beta_2 + \beta_3 \rightarrow \text{the h/l difference in black group}\\
+\\
+E[call\_back \mid high = 1, black = 0] &= \beta_0 + \beta_2 \rightarrow \text{for high-quality whites}\\
+E[call\_back \mid high = 0, black = 0] &= \beta_0 \rightarrow \text{for low-quality whites}\\
+\Delta^{HvL}_{black = 0} &= \beta_2 \rightarrow \text{the h/l difference in white group}\\
+\\
+\Longrightarrow\Delta^{HvL}_{black = 1} - \Delta^{HvL}_{black = 0} &= \beta_3
+\end{aligned}
+$$
+
++ Comment: We simply estimate the regression model and obtain $\hat{\beta_3}$.
+
+## Quesion 2(b) Is the African American/white callback rate differential different for men than for women? {-}
+
+**Model specification** \textcolor{red}{\textit{(implied by the current solution)}}
+\small
+$$
+\begin{aligned}
+call\_back_i &= \beta_0 + \beta_1\cdot black_i + \beta_3 \cdot black_i \times female_i+ u_i\\
+\\
+E[call\_back \mid black = 1,female = 1] &= \beta_0 + \beta_1 + \beta_3 \rightarrow \text{for African Americans women}\\
+E[call\_back \mid black = 0, female =1] &= \beta_0 \rightarrow \text{for White women}\\
+\Delta^{BvW}_{female = 1} &= \beta_1 + \beta_3 \rightarrow \text{the b/w difference in women group}\\
+\\
+E[call\_back \mid black = 1,female = 0] &= \beta_0 + \beta_1 \rightarrow \text{for African Americans men}\\
+E[call\_back \mid black = 0, female =0] &= \beta_0 \rightarrow \text{for White men}\\
+\Delta^{BvW}_{female = 0} &= \beta_1 \rightarrow \text{the b/w difference in men group}\\
+\\
+\Longrightarrow \beta_3 &= \Delta^{BvW}_{female = 1} - \Delta^{BvW}_{female = 1}\\
+&= E[call\_back \mid \text{Black women}] - E[call\_back \mid \text{Black men}] \color{red}{\text{ (also) }}
+\end{aligned}
+$$
+
++ Another illustration by Lana (more clever & intuitive!)
+
+```{r, echo=FALSE, out.width='80%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 2/pictures/2(b)-old.jpeg")
+```
+
++ Comments:
+  1. When `female` is excluded, this specification implies there is gender difference in callback rate for black group only (see solution). As this form restricts both white men and white women have the same average callback rate ($=\beta_0$) .
+  2. If we are comfortable with the above assumption, we can still answer the question (b) based on $\hat{\beta}_3$, although the solution sounds irrelevant.
+```{r, echo=FALSE, out.width='70%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 2/pictures/Q2(b)solution.jpeg")
+``` 
+  
++ Including `female`, the model becomes more general:
+
+```{r, echo=FALSE, out.width='80%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 2/pictures/2(b)-suggested.jpeg")
+```
