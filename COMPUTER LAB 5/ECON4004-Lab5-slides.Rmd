@@ -84,7 +84,14 @@ knitr::include_graphics(c("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-E
 
 + Exercise: based on Stock \& Watson, E15.1
 
-+ We will focus on *"Time series Regression"*
+\vspace{0.8mm}
+
++ We will focus on *"Time Series Regression"*
+  + Time series data
+  + Autocorrelation
+  + Autoregressions
+  + Forecasting near future values
+  + Unit root test
 
 
 # BRIEF REVIEW
