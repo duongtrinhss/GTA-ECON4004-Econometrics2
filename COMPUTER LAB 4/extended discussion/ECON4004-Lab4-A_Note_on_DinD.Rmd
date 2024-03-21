@@ -1,0 +1,104 @@
+---
+title: "ECON4004 Lab 4: A Note on Differece-in-Difference"
+# author: "Duong Trinh"
+date: "Feb 2024"
+output:
+  bookdown::pdf_document2:
+    toc: no
+    number_sections: yes
+    extra_dependencies:
+    - mathtools
+    - bbm
+    number_figures: yes
+    fig_caption: yes
+  pdf_document:
+    toc: no
+  bookdown::html_document2:
+    toc: no
+    df_print: paged
+geometry: left = 2.5cm, right = 2cm, top = 2cm, bottom = 2cm
+linestretch: 1.15
+header-includes:
+- \usepackage{float}
+- \usepackage{booktabs}
+- \usepackage{longtable}
+- \newcommand\sbullet[1][.5]{\mathbin{\vcenter{\hbox{\scalebox{#1}{$\bullet$}}}}}
+---
+
+```{r, setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(knitr.table.format = function() {
+  if (knitr::is_latex_output()) 'latex' else 'pandoc'
+})
+```
+
+```{r, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, results='hide'}
+# install.packages("Statamarkdown")
+library(Statamarkdown)
+```
+
+# Parametric DinD
+
+1. Separating every thing out
+
+$$
+\begin{aligned}
+Y(t=1,D(1)=1) &= \alpha + \pi(1) X + \theta + \mu + \beta + \epsilon(1)\\
+Y(t=1,D(1)=0) &= \alpha + \pi(1) X + \mu + \epsilon(1)\\
+Y(t=0,D(1)=1) &= \alpha + \pi(0) X + \theta + \epsilon(0)\\
+Y(t=0,D(1)=0) &= \alpha + \pi(0) X +  \epsilon(0)\\
+\end{aligned}
+$$
+
+2. Pooling treated $(D(1)=1)$ and non-treated $(D(1)=0)$ by period
+
+$$
+\begin{aligned}
+t=1: Y(1) &= \alpha + \pi(1) X + \theta D(1) + \mu + \beta D(1) + \epsilon(1)\\
+t=0: Y(0) &= \alpha + \pi(0) X + \theta D(1) + \epsilon(0)\\
+\end{aligned}
+$$
+
+3. Pooling the 2 periods
+$$
+\begin{aligned}
+Y(t) &= \alpha + \pi(1) X \cdot t+ \pi(0) X \cdot (1-t) + \theta D(1) + \mu \cdot t + \beta D(1) \cdot t + \epsilon(1)\\
+Y(t) &= \alpha + \pi_0 X + \pi_{10} X \cdot t + \theta D(1) + \mu \cdot t + \beta D(1) \cdot t + \epsilon(0)\\
+\end{aligned}
+$$
+
+$\Rightarrow$ Estimation procedure: Stack data and regress $Y(t)$ on: ...
+
+
+
+```{stata, eval = FALSE}
+use "/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/data/nsw_psid.dta", clear
+des
+generate dre = re78 - re75
+regress dre if treated==1
+ttest re78=re75 if treated==1
+
+```
+
+# Empirical Example - Housing Policy
+
+```{r, echo=FALSE, out.width='100%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/extended discussion/figures/Figure1.png")
+```
+
+```{r, echo=FALSE, out.width='100%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/extended discussion/figures/Figure2.png")
+```
+
+```{r, echo=FALSE, out.width='100%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/extended discussion/figures/Figure3.png")
+```
+
+```{r, echo=FALSE, out.width='100%', fig.show='hold', fig.align='center', fig.pos = 'H'}
+library(knitr)
+knitr::include_graphics("/Users/duongtrinh/Dropbox/GTA/ECON4004/GTA-ECON4004-Econometrics2/COMPUTER LAB 4/extended discussion/figures/Figure4.png")
+```
+
